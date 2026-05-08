@@ -74,6 +74,6 @@ getBiomass.mizerExtensionTemplateSim <- function(object, ...) {
     b <- cbind(b, Plankton = plankton_biomass)
     names(dimnames(b)) <- dimname_names
 
-    mizer::ArraySpeciesByTime(b, value_name = "Biomass", units = "g",
-                              params = params)
+    ArraySpeciesByTime(b, value_name = "Biomass", units = "g",
+                       params = params)
 }

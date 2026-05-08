@@ -25,7 +25,7 @@
 planktonEncounter <- function(params, n, n_pp, n_other, component, ...) {
     params2 <- params
     params2@other_encounter[[component]] <- NULL
-    mizer::mizerEncounter(params2,
+    mizerEncounter(params2,
                           n      = n,
                           n_pp   = n_other[[component]],
                           n_other = n_other,

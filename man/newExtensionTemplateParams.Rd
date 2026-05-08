@@ -65,7 +65,7 @@ dispatch to the S3 methods defined in this package. For a
 \strong{metadata-only} extension (one that does not override any generic), you
 would omit the \code{setClass()} definition in \code{mizerExtensionTemplate-class.R}
 and the \code{coerceToExtensionClass()} call at the end of this function. You
-still call \code{params@extensions <- mizer::getRegisteredExtensions()} so the
+still call \code{params@extensions <- getRegisteredExtensions()} so the
 dependency is recorded.
 }
 }

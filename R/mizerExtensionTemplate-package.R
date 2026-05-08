@@ -9,6 +9,6 @@
 # loaded extensions.
 
 .onLoad <- function(libname, pkgname) {
-    mizer::registerExtension(pkgname,
-                             requirement = "sizespectrum/mizerExtensionTemplate")
+    registerExtension(pkgname,
+                      requirement = "sizespectrum/mizerExtensionTemplate")
 }

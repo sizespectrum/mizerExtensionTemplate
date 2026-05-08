@@ -26,7 +26,7 @@
 #' **metadata-only** extension (one that does not override any generic), you
 #' would omit the `setClass()` definition in `mizerExtensionTemplate-class.R`
 #' and the `coerceToExtensionClass()` call at the end of this function. You
-#' still call `params@extensions <- mizer::getRegisteredExtensions()` so the
+#' still call `params@extensions <- getRegisteredExtensions()` so the
 #' dependency is recorded.
 #'
 #' @param species_params A data frame of species parameters passed directly to
@@ -55,7 +55,7 @@ newExtensionTemplateParams <- function(
         plankton_rate       = 0.5,
         ...) {
 
-    params <- mizer::newMultispeciesParams(species_params, ...)
+    params <- newMultispeciesParams(species_params, info_level = 0, ...)
 
     # -------------------------------------------------------------------------
     # Mechanism 1: setExtEncounter() and setExtMort()
@@ -72,18 +72,18 @@ newExtensionTemplateParams <- function(
     # -------------------------------------------------------------------------
     if (extra_food_coef > 0) {
         extra_food <- outer(
-            rep(extra_food_coef, nrow(mizer::species_params(params))),
-            mizer::w(params)^(3/4)
+            rep(extra_food_coef, nrow(species_params(params))),
+            w(params)^(3/4)
         )
-        mizer::ext_encounter(params) <- mizer::ext_encounter(params) + extra_food
+        ext_encounter(params) <- ext_encounter(params) + extra_food
     }
 
     if (background_mort_coef > 0) {
         bg_mort <- outer(
-            rep(background_mort_coef, nrow(mizer::species_params(params))),
-            mizer::w(params)^(-1/4)
+            rep(background_mort_coef, nrow(species_params(params))),
+            w(params)^(-1/4)
         )
-        mizer::ext_mort(params) <- mizer::ext_mort(params) + bg_mort
+        ext_mort(params) <- ext_mort(params) + bg_mort
     }
 
     # -------------------------------------------------------------------------
@@ -96,7 +96,7 @@ newExtensionTemplateParams <- function(
     # The projectEncounter.mizerExtensionTemplate() method (rate-methods.R)
     # reads season_amplitude from here.
     # -------------------------------------------------------------------------
-    mizer::other_params(params)$mizerExtensionTemplate <- list(
+    other_params(params)$mizerExtensionTemplate <- list(
         season_amplitude = season_amplitude
     )
 
@@ -112,12 +112,12 @@ newExtensionTemplateParams <- function(
     # need. It is accessible inside those functions via
     # params@other_params[["plankton"]].
     # -------------------------------------------------------------------------
-    plankton_capacity <- mizer::initialNResource(params) * 0.5
+    plankton_capacity <- initialNResource(params) * 0.5
     plankton_params <- list(
         capacity = plankton_capacity,
         rate     = rep(plankton_rate, length(plankton_capacity))
     )
-    params <- mizer::setComponent(
+    params <- setComponent(
         params,
         component      = "plankton",
         initial_value  = plankton_capacity / 2,
@@ -133,8 +133,8 @@ newExtensionTemplateParams <- function(
     # Every constructor in a dispatching extension must end with these two
     # lines, in this order:
     #
-    #   params@extensions <- mizer::getRegisteredExtensions()
-    #   params <- mizer::coerceToExtensionClass(params)
+    #   params@extensions <- getRegisteredExtensions()
+    #   params <- coerceToExtensionClass(params)
     #
     # getRegisteredExtensions() returns the chain that all loaded .onLoad
     # hooks have built up. Storing it in params stamps the object with a
@@ -148,7 +148,7 @@ newExtensionTemplateParams <- function(
     #
     # For a metadata-only extension, keep the first line and drop the second.
     # -------------------------------------------------------------------------
-    params@extensions <- mizer::getRegisteredExtensions()
-    params <- mizer::coerceToExtensionClass(params)
+    params@extensions <- getRegisteredExtensions()
+    params <- coerceToExtensionClass(params)
     params
 }

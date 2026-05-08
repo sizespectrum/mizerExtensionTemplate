@@ -47,7 +47,7 @@ projectEncounter.mizerExtensionTemplate <- function(params, n, n_pp, n_other,
     # includes the plankton encounter contribution from setComponent()).
     enc <- NextMethod()
 
-    amplitude <- mizer::other_params(params)$mizerExtensionTemplate$season_amplitude
+    amplitude <- other_params(params)$mizerExtensionTemplate$season_amplitude
     if (!is.null(amplitude) && amplitude != 0) {
         enc <- enc * (1 + amplitude * sin(2 * pi * t))
     }
