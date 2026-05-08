@@ -1,0 +1,128 @@
+# mizerExtensionTemplate
+
+A template R package for building
+[mizer](https://sizespectrum.org/mizer/) extension packages. Clone it,
+rename it, and replace the placeholder code with your own extension
+logic.
+
+## What this template demonstrates
+
+Every extension mechanism described in the mizer documentation is
+illustrated with working, commented code:
+
+| Mechanism | Where | What the template adds |
+|----|----|----|
+| [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.html) | `R/constructor.R` | Allometric extra food source |
+| [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.html) | `R/constructor.R` | Size-dependent background mortality |
+| `project*` S3 method | `R/rate-methods.R` | Seasonal encounter multiplier |
+| [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.html) | `R/constructor.R` + `R/component-functions.R` | Dynamical plankton spectrum |
+| `getBiomass` S3 override | `R/generic-methods.R` | Plankton biomass in output |
+
+The template also shows both kinds of extension package:
+
+- **Dispatching** (like this template and
+  [mizerShelf](https://sizespectrum.org/mizerShelf/)): defines a marker
+  S4 class so mizer’s generic functions dispatch to extension-specific
+  methods via [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html).
+- **Metadata-only** (like
+  [mizerStarvation](https://sizespectrum.org/mizerStarvation/)): records
+  the extension dependency without overriding any generic. Comments in
+  the constructor explain which parts to keep or drop for this case.
+
+## Installation
+
+``` r
+# Install from GitHub (requires the development version of mizer)
+pak::pak("sizespectrum/mizerExtensionTemplate")
+```
+
+## Quick start
+
+``` r
+library(mizerExtensionTemplate)
+
+params <- newExtensionTemplateParams(NS_species_params)
+sim    <- project(params, t_max = 10)
+plotBiomass(sim)   # includes a Plankton column
+```
+
+## Using this template for your own extension
+
+1.  **Use this repo as a GitHub template** (click “Use this template” on
+    GitHub) or copy the files manually.
+
+2.  **Rename** `mizerExtensionTemplate` → your package name throughout:
+
+    - `DESCRIPTION` (Package, Title, Description, URL, BugReports)
+    - `R/mizerExtensionTemplate-class.R` — rename the file and both
+      `setClass` calls
+    - `R/mizerExtensionTemplate-package.R` — update the `requirement`
+      string
+    - `R/constructor.R` — rename
+      [`newExtensionTemplateParams()`](https://sizespectrum.org/mizerExtensionTemplate/reference/newExtensionTemplateParams.md)
+    - `R/rate-methods.R` and `R/generic-methods.R` — rename all method
+      suffixes
+    - `tests/` and `vignettes/` — rename file names and internal
+      references
+
+3.  **Decide: metadata-only or dispatching?**  
+    For a metadata-only extension, delete
+    `R/mizerExtensionTemplate-class.R`, remove the `setClass()` calls,
+    and drop the
+    [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html)
+    call at the end of the constructor. Keep
+    `params@extensions <- getRegisteredExtensions()`.
+
+4.  **Replace the placeholder extension logic** with your own. Each
+    mechanism in `R/constructor.R` is independent — delete the ones you
+    don’t need.
+
+5.  **Regenerate** the namespace and documentation:
+
+    ``` r
+    devtools::document()
+    devtools::test()
+    devtools::check()
+    ```
+
+## Background reading
+
+- [Extending
+  mizer](https://sizespectrum.org/mizer/articles/extending-mizer.html) —
+  all five extension mechanisms with worked examples.
+- [Creating a mizer extension
+  package](https://sizespectrum.org/mizer/articles/creating-extension-packages.html)
+  — the concepts behind marker classes,
+  [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) chaining, and
+  composable extensions.
+- [Using mizer extension
+  packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html)
+  — the user’s perspective on the extension chain.
+
+# Package index
+
+## All functions
+
+- [`.onLoad()`](https://sizespectrum.org/mizerExtensionTemplate/reference/dot-onLoad.md)
+  : mizerExtensionTemplate
+- [`getBiomass(`*`<mizerExtensionTemplate>`*`)`](https://sizespectrum.org/mizerExtensionTemplate/reference/getBiomass.md)
+  : Get biomass including the plankton component
+- [`getBiomass(`*`<mizerExtensionTemplateSim>`*`)`](https://sizespectrum.org/mizerExtensionTemplate/reference/getBiomass.mizerExtensionTemplateSim.md)
+  : Get biomass time series including the plankton component
+- [`mizerExtensionTemplate-class`](https://sizespectrum.org/mizerExtensionTemplate/reference/mizerExtensionTemplate-class.md)
+  : mizerExtensionTemplate marker classes
+- [`newExtensionTemplateParams()`](https://sizespectrum.org/mizerExtensionTemplate/reference/newExtensionTemplateParams.md)
+  : Create a MizerParams object using the extension template
+- [`planktonDynamics()`](https://sizespectrum.org/mizerExtensionTemplate/reference/planktonDynamics.md)
+  : Plankton dynamics
+- [`planktonEncounter()`](https://sizespectrum.org/mizerExtensionTemplate/reference/planktonEncounter.md)
+  : Plankton encounter contribution
+- [`projectEncounter(`*`<mizerExtensionTemplate>`*`)`](https://sizespectrum.org/mizerExtensionTemplate/reference/projectEncounter.mizerExtensionTemplate.md)
+  : Seasonal encounter rate for the extension template
+
+# Articles
+
+### All vignettes
+
+- [Using and adapting the mizer extension
+  template](https://sizespectrum.org/mizerExtensionTemplate/articles/mizerExtensionTemplate.md):

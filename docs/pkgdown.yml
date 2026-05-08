@@ -1,0 +1,9 @@
+pandoc: 3.6.3
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  mizerExtensionTemplate: mizerExtensionTemplate.html
+last_built: 2026-05-08T14:54Z
+urls:
+  reference: https://sizespectrum.org/mizerExtensionTemplate/reference
+  article: https://sizespectrum.org/mizerExtensionTemplate/articles
