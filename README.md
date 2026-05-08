@@ -54,7 +54,7 @@ plotBiomass(sim)   # includes a Plankton column
    - `DESCRIPTION` (Package, Title, Description, URL, BugReports)
    - `R/mizerExtensionTemplate-class.R` — rename the file and both `setClass`
      calls
-   - `R/zzz.R` — update the `requirement` string
+   - `R/mizerExtensionTemplate-package.R` — update the `requirement` string
    - `R/constructor.R` — rename `newExtensionTemplateParams()`
    - `R/rate-methods.R` and `R/generic-methods.R` — rename all method
      suffixes

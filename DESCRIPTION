@@ -26,7 +26,7 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 Collate:
     'mizerExtensionTemplate-class.R'
-    'zzz.R'
+    'mizerExtensionTemplate-package.R'
     'constructor.R'
     'component-functions.R'
     'rate-methods.R'
@@ -34,5 +34,5 @@ Collate:
 Remotes:
     sizespectrum/mizer
 Config/roxygen2/version: 8.0.0
-URL: https://github.com/sizespectrum/mizerExtensionTemplate
+URL: https://sizespectrum.org/mizerExtensionTemplate, https://github.com/sizespectrum/mizerExtensionTemplate
 BugReports: https://github.com/sizespectrum/mizerExtensionTemplate/issues
