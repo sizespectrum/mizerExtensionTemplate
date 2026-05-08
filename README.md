@@ -2,7 +2,7 @@
 
 A template R package for building [mizer](https://sizespectrum.org/mizer/)
 extension packages. Clone it, rename it, and replace the placeholder code with
-your own extension logic.
+your own extension logic. See [Get Started](articles/mizerExtensionTemplate.html) for details.
 
 ## What this template demonstrates
 
