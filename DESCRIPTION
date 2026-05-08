@@ -34,3 +34,5 @@ Collate:
 Remotes:
     sizespectrum/mizer
 Config/roxygen2/version: 8.0.0
+URL: https://github.com/sizespectrum/mizerExtensionTemplate
+BugReports: https://github.com/sizespectrum/mizerExtensionTemplate/issues
