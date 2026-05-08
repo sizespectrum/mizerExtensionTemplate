@@ -1,0 +1,36 @@
+Package: mizerExtensionTemplate
+Title: Template for mizer Extension Packages
+Version: 0.0.0.9000
+Authors@R:
+    person("First", "Last", email = "author@example.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0000-0000-0000"))
+Description: A template that demonstrates all extension mechanisms available in
+    mizer. Use it as a starting point for your own mizer extension package.
+    The template illustrates metadata-only and dispatching extensions, external
+    encounter and mortality terms, a custom rate method via S3 dispatch
+    (replacing setRateFunction()), a dynamical component via setComponent(),
+    and user-facing generic overrides with NextMethod() chaining.
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Depends:
+    R (>= 4.1.0),
+    mizer (>= 2.5.4.9000)
+Imports:
+    methods
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+Collate:
+    'mizerExtensionTemplate-class.R'
+    'zzz.R'
+    'constructor.R'
+    'component-functions.R'
+    'rate-methods.R'
+    'generic-methods.R'
+Remotes:
+    sizespectrum/mizer
+Config/roxygen2/version: 8.0.0

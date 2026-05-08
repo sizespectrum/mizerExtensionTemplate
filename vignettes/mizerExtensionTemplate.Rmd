@@ -1,0 +1,129 @@
+---
+title: "Using and adapting the mizer extension template"
+output:
+  html_document:
+    toc: yes
+    fig_width: 5
+    fig_height: 5
+vignette: >
+  %\VignetteIndexEntry{Using and adapting the mizer extension template}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(mizer)
+library(mizerExtensionTemplate)
+```
+
+# What this package is
+
+`mizerExtensionTemplate` is a working mizer extension package that you can
+clone and adapt. Every line of code is commented to explain *what* is being
+done and *why*. Read the source files alongside this vignette.
+
+For the full conceptual background see:
+
+- `vignette("extending-mizer", package = "mizer")` — all five extension
+  mechanisms with worked examples.
+- `vignette("creating-extension-packages", package = "mizer")` — turning
+  a script into a composable, shareable package.
+
+# The extension at a glance
+
+`mizerExtensionTemplate` adds three things to a standard mizer model:
+
+| Mechanism | What it adds | Where |
+|-----------|-------------|-------|
+| `setExtEncounter()` | Fixed allometric extra food | `constructor.R` |
+| `setExtMort()` | Fixed background mortality | `constructor.R` |
+| `projectEncounter` S3 method | Seasonal encounter multiplier | `rate-methods.R` |
+| `setComponent("plankton")` | Dynamical plankton spectrum | `constructor.R` + `component-functions.R` |
+| `getBiomass` S3 methods | Includes plankton in output | `generic-methods.R` |
+
+# Quick start
+
+```{r quick-start, eval = FALSE}
+params <- newExtensionTemplateParams(NS_species_params)
+sim    <- project(params, t_max = 10)
+plotBiomass(sim)   # Plankton column appears automatically
+```
+
+```{r quick-start-run, echo = FALSE}
+params <- newExtensionTemplateParams(NS_species_params)
+sim    <- project(params, t_max = 10)
+plotBiomass(sim)
+```
+
+# How the seasonal encounter works
+
+The seasonal multiplier peaks at `t = 0.25` (quarter-year) and troughs at
+`t = 0.75`. With the default amplitude of 0.2 the encounter rate varies by
+±20 % around its annual mean.
+
+```{r seasonal}
+params_s <- newExtensionTemplateParams(NS_species_params, season_amplitude = 0.4)
+enc_t0   <- getEncounter(params_s, t = 0)    # multiplier = 1.0
+enc_t025 <- getEncounter(params_s, t = 0.25) # multiplier = 1.4
+range(enc_t025 / enc_t0, na.rm = TRUE)
+```
+
+This seasonal effect is implemented in
+`projectEncounter.mizerExtensionTemplate()` (`rate-methods.R`). It calls
+`NextMethod()` to get the base encounter rate (including the plankton
+contribution), then multiplies by the seasonal factor. Using a `project*`
+method rather than `setRateFunction()` means another extension package can
+also modify the encounter rate without conflict.
+
+# How the plankton component works
+
+The plankton is a vector spectrum stored on the full resource size grid.
+At each time step:
+
+1. `planktonEncounter()` adds the plankton encounter contribution to
+   `getEncounter()` by presenting the plankton as an extra resource.
+2. `planktonDynamics()` updates the plankton by solving the ODE
+   `dP/dt = r(K − P) − m·P` analytically over the time step, where `m` is
+   the predation mortality on the plankton spectrum.
+
+```{r plankton-diet}
+plotDiet(params, species = "Cod")
+```
+
+# Adapting this template for your extension
+
+1. **Rename the package**: search and replace `mizerExtensionTemplate` → your
+   package name throughout all files, including `DESCRIPTION`, the R files,
+   `NAMESPACE`, and this vignette.
+
+2. **Decide: metadata-only or dispatching?**
+   - *Metadata-only* (like `mizerStarvation`): delete
+     `mizerExtensionTemplate-class.R`, remove the `setClass()` calls, and
+     remove the `coerceToExtensionClass()` call at the end of the
+     constructor. Keep `params@extensions <- getRegisteredExtensions()`.
+   - *Dispatching* (like `mizerShelf`): keep everything and define S3
+     methods for the generics you need to override.
+
+3. **Remove mechanisms you don't need**: each of the five mechanisms in
+   `constructor.R` is independent. Delete the blocks that do not apply to
+   your extension.
+
+4. **Replace the plankton component** with your own component, or remove
+   `setComponent()` entirely if you don't need a dynamical state variable.
+
+5. **Run `devtools::document()`** to regenerate `NAMESPACE` from the roxygen2
+   tags, then `devtools::test()` and `devtools::check()` before publishing.
+
+# Checklist for dispatching extension authors
+
+- [ ] `setClass("<myExt>", contains = "MizerParams")` and
+  `setClass("<myExt>Sim", contains = "MizerSim")` in the class file.
+- [ ] `mizer::registerExtension(pkgname, requirement = ...)` in `.onLoad`.
+- [ ] Constructor ends with `params@extensions <- getRegisteredExtensions()`
+  and `coerceToExtensionClass(params)`.
+- [ ] Every S3 method is registered via `@method` + `@export`.
+- [ ] Every S3 method calls `NextMethod()`.
+- [ ] Rate modifications use `project*` methods, not `setRateFunction()`.
+- [ ] Extension-specific state lives in `other_params(params)` or component
+  params — not in new S4 slots.
