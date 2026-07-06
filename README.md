@@ -16,6 +16,7 @@ with working, commented code:
 | `project*` S3 method | `R/rate-methods.R` | Seasonal encounter multiplier |
 | `setComponent()` | `R/constructor.R` + `R/component-functions.R` | Dynamical plankton spectrum |
 | `getBiomass` S3 override | `R/generic-methods.R` | Plankton biomass in output |
+| Bundled data object | `data/` + `R/data.R` + `.onLoad` | `example_params` ready to use |
 
 The template also shows both kinds of extension package:
 
@@ -40,6 +41,10 @@ pak::pak("sizespectrum/mizerExtensionTemplate")
 ```r
 library(mizerExtensionTemplate)
 
+# Use the bundled example model (already correctly classed):
+getBiomass(example_params)   # includes Plankton
+
+# Or build your own:
 params <- newExtensionTemplateParams(NS_species_params)
 sim    <- project(params, t_max = 10)
 plotBiomass(sim)   # includes a Plankton column
@@ -69,7 +74,11 @@ plotBiomass(sim)   # includes a Plankton column
 4. **Replace the placeholder extension logic** with your own. Each mechanism
    in `R/constructor.R` is independent — delete the ones you don't need.
 
-5. **Regenerate** the namespace and documentation:
+5. **If you ship a bundled data object** in `data/`, add a `makeActiveBinding`
+   call to `.onLoad` (see `R/mizerExtensionTemplate-package.R`) so that users
+   always get a correctly classed object regardless of load order.
+
+6. **Regenerate** the namespace and documentation:
    ```r
    devtools::document()
    devtools::test()

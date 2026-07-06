@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">mizerExtensionTemplate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,6 +109,14 @@
 <td><code>R/generic-methods.R</code></td>
 <td>Plankton biomass in output</td>
 </tr>
+<tr>
+<td>Bundled data object</td>
+<td>
+<code>data/</code> + <code>R/data.R</code> + <code>.onLoad</code>
+</td>
+<td>
+<code>example_params</code> ready to use</td>
+</tr>
 </tbody>
 </table>
 <p>The template also shows both kinds of extension package:</p>
@@ -132,6 +140,10 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizerExtensionTemplate">mizerExtensionTemplate</a></span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Use the bundled example model (already correctly classed):</span></span>
+<span><span class="fu"><a href="reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">example_params</span><span class="op">)</span>   <span class="co"># includes Plankton</span></span>
+<span></span>
+<span><span class="co"># Or build your own:</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/newExtensionTemplateParams.html">newExtensionTemplateParams</a></span><span class="op">(</span><span class="va">NS_species_params</span><span class="op">)</span></span>
 <span><span class="va">sim</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://sizespectrum.org/mizer/reference/project.html" class="external-link">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://sizespectrum.org/mizer/reference/plotBiomass.html" class="external-link">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>   <span class="co"># includes a Plankton column</span></span></code></pre></div>
@@ -162,6 +174,7 @@
 <li><p><strong>Decide: metadata-only or dispatching?</strong><br>
 For a metadata-only extension, delete <code>R/mizerExtensionTemplate-class.R</code>, remove the <code>setClass()</code> calls, and drop the <code><a href="https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html" class="external-link">coerceToExtensionClass()</a></code> call at the end of the constructor. Keep <code>params@extensions &lt;- getRegisteredExtensions()</code>.</p></li>
 <li><p><strong>Replace the placeholder extension logic</strong> with your own. Each mechanism in <code>R/constructor.R</code> is independent — delete the ones you don’t need.</p></li>
+<li><p><strong>If you ship a bundled data object</strong> in <code>data/</code>, add a <code>makeActiveBinding</code> call to <code>.onLoad</code> (see <code>R/mizerExtensionTemplate-package.R</code>) so that users always get a correctly classed object regardless of load order.</p></li>
 <li>
 <p><strong>Regenerate</strong> the namespace and documentation:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">

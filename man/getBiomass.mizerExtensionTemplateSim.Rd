@@ -12,7 +12,7 @@
 \item{...}{Passed to the next method in the dispatch chain.}
 }
 \value{
-An \code{ArraySpeciesByTime} matrix (time × species + Plankton) with
+An \code{ArrayTimeBySpecies} matrix (time × species + Plankton) with
 biomasses in grams.
 }
 \description{

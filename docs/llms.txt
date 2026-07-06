@@ -3,7 +3,9 @@
 A template R package for building
 [mizer](https://sizespectrum.org/mizer/) extension packages. Clone it,
 rename it, and replace the placeholder code with your own extension
-logic.
+logic. See [Get
+Started](https://sizespectrum.org/mizerExtensionTemplate/articles/mizerExtensionTemplate.md)
+for details.
 
 ## What this template demonstrates
 
@@ -17,6 +19,7 @@ illustrated with working, commented code:
 | `project*` S3 method | `R/rate-methods.R` | Seasonal encounter multiplier |
 | [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.html) | `R/constructor.R` + `R/component-functions.R` | Dynamical plankton spectrum |
 | `getBiomass` S3 override | `R/generic-methods.R` | Plankton biomass in output |
+| Bundled data object | `data/` + `R/data.R` + `.onLoad` | `example_params` ready to use |
 
 The template also shows both kinds of extension package:
 
@@ -32,6 +35,7 @@ The template also shows both kinds of extension package:
 ## Installation
 
 ``` r
+
 # Install from GitHub (requires the development version of mizer)
 pak::pak("sizespectrum/mizerExtensionTemplate")
 ```
@@ -39,8 +43,13 @@ pak::pak("sizespectrum/mizerExtensionTemplate")
 ## Quick start
 
 ``` r
+
 library(mizerExtensionTemplate)
 
+# Use the bundled example model (already correctly classed):
+getBiomass(example_params)   # includes Plankton
+
+# Or build your own:
 params <- newExtensionTemplateParams(NS_species_params)
 sim    <- project(params, t_max = 10)
 plotBiomass(sim)   # includes a Plankton column
@@ -77,9 +86,15 @@ plotBiomass(sim)   # includes a Plankton column
     mechanism in `R/constructor.R` is independent — delete the ones you
     don’t need.
 
-5.  **Regenerate** the namespace and documentation:
+5.  **If you ship a bundled data object** in `data/`, add a
+    `makeActiveBinding` call to `.onLoad` (see
+    `R/mizerExtensionTemplate-package.R`) so that users always get a
+    correctly classed object regardless of load order.
+
+6.  **Regenerate** the namespace and documentation:
 
     ``` r
+
     devtools::document()
     devtools::test()
     devtools::check()
@@ -105,6 +120,8 @@ plotBiomass(sim)   # includes a Plankton column
 
 - [`.onLoad()`](https://sizespectrum.org/mizerExtensionTemplate/reference/dot-onLoad.md)
   : mizerExtensionTemplate
+- [`example_params`](https://sizespectrum.org/mizerExtensionTemplate/reference/example_params.md)
+  : Example MizerParams object for the extension template
 - [`getBiomass(`*`<mizerExtensionTemplate>`*`)`](https://sizespectrum.org/mizerExtensionTemplate/reference/getBiomass.md)
   : Get biomass including the plankton component
 - [`getBiomass(`*`<mizerExtensionTemplateSim>`*`)`](https://sizespectrum.org/mizerExtensionTemplate/reference/getBiomass.mizerExtensionTemplateSim.md)

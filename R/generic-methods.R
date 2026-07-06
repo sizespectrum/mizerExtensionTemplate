@@ -49,7 +49,7 @@ getBiomass.mizerExtensionTemplate <- function(object, ...) {
 #' @param object A `mizerExtensionTemplateSim` sim object.
 #' @param ... Passed to the next method in the dispatch chain.
 #'
-#' @return An `ArraySpeciesByTime` matrix (time × species + Plankton) with
+#' @return An `ArrayTimeBySpecies` matrix (time × species + Plankton) with
 #'   biomasses in grams.
 #'
 #' @method getBiomass mizerExtensionTemplateSim
@@ -58,7 +58,7 @@ getBiomass.mizerExtensionTemplateSim <- function(object, ...) {
     sim    <- object
     params <- sim@params
 
-    # unclass() strips the ArraySpeciesByTime wrapper so we can cbind().
+    # unclass() strips the ArrayTimeBySpecies wrapper so we can cbind().
     b             <- unclass(NextMethod())
     dimname_names <- names(dimnames(b))
 
@@ -74,6 +74,6 @@ getBiomass.mizerExtensionTemplateSim <- function(object, ...) {
     b <- cbind(b, Plankton = plankton_biomass)
     names(dimnames(b)) <- dimname_names
 
-    ArraySpeciesByTime(b, value_name = "Biomass", units = "g",
+    ArrayTimeBySpecies(b, value_name = "Biomass", units = "g",
                        params = params)
 }

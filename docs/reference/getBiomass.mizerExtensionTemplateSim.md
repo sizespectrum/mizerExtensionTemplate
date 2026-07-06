@@ -24,5 +24,5 @@ getBiomass(object, ...)
 
 ## Value
 
-An `ArraySpeciesByTime` matrix (time × species + Plankton) with
+An `ArrayTimeBySpecies` matrix (time × species + Plankton) with
 biomasses in grams.

@@ -49,7 +49,7 @@ plankton.
 ## Details
 
 The implementation is taken directly from the detritus example in
-`vignette("extending-mizer", package = "mizer")`. It treats the plankton
-spectrum as the resource (`n_pp`) in a standard mizer encounter
-calculation, after first removing the plankton's own encounter hook from
-the temporary params copy to avoid double-counting.
+[`vignette("extending-mizer", package = "mizer")`](https://sizespectrum.org/mizer/articles/extending-mizer.html).
+It treats the plankton spectrum as the resource (`n_pp`) in a standard
+mizer encounter calculation, after first removing the plankton's own
+encounter hook from the temporary params copy to avoid double-counting.

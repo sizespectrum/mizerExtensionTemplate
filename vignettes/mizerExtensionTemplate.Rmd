@@ -41,8 +41,29 @@ For the full conceptual background see:
 | `projectEncounter` S3 method | Seasonal encounter multiplier | `rate-methods.R` |
 | `setComponent("plankton")` | Dynamical plankton spectrum | `constructor.R` + `component-functions.R` |
 | `getBiomass` S3 methods | Includes plankton in output | `generic-methods.R` |
+| Bundled data object | `example_params` ready to use | `data/`, `R/data.R`, `.onLoad` |
 
-# Quick start
+# Bundled example model
+
+The package ships a ready-made `example_params` object — a three-species
+(Sprat, Herring, Cod) model built with `newExtensionTemplateParams()`. It is
+stored in `data/example_params.rda` and lazy-loaded by R, but the `.onLoad`
+hook replaces the plain binding with an active binding so that every access
+returns an object with the correct S4 extension class:
+
+```{r example-params}
+class(example_params)   # mizerExtensionTemplate, not plain MizerParams
+getBiomass(example_params)  # Plankton entry is present
+```
+
+You can use it directly without calling `newExtensionTemplateParams()`:
+
+```{r example-project, eval = FALSE}
+sim <- project(example_params, t_max = 5)
+plotBiomass(sim)
+```
+
+# Quick start (build your own)
 
 ```{r quick-start, eval = FALSE}
 params <- newExtensionTemplateParams(NS_species_params)
@@ -122,6 +143,8 @@ plotDiet(params, species = "Cod")
 - [ ] `mizer::registerExtension(pkgname, requirement = ...)` in `.onLoad`.
 - [ ] Constructor ends with `params@extensions <- getRegisteredExtensions()`
   and `coerceToExtensionClass(params)`.
+- [ ] For every `MizerParams` or `MizerSim` object bundled in `data/`, add a
+  `makeActiveBinding` call in `.onLoad` (see `mizerExtensionTemplate-package.R`).
 - [ ] Every S3 method is registered via `@method` + `@export`.
 - [ ] Every S3 method calls `NextMethod()`.
 - [ ] Rate modifications use `project*` methods, not `setRateFunction()`.

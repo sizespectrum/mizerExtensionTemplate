@@ -8,10 +8,10 @@ is being done and *why*. Read the source files alongside this vignette.
 
 For the full conceptual background see:
 
-- `vignette("extending-mizer", package = "mizer")` — all five extension
-  mechanisms with worked examples.
-- `vignette("creating-extension-packages", package = "mizer")` — turning
-  a script into a composable, shareable package.
+- [`vignette("extending-mizer", package = "mizer")`](https://sizespectrum.org/mizer/articles/extending-mizer.html)
+  — all five extension mechanisms with worked examples.
+- [`vignette("creating-extension-packages", package = "mizer")`](https://sizespectrum.org/mizer/articles/creating-extension-packages.html)
+  — turning a script into a composable, shareable package.
 
 ## The extension at a glance
 
@@ -24,10 +24,41 @@ For the full conceptual background see:
 | `projectEncounter` S3 method | Seasonal encounter multiplier | `rate-methods.R` |
 | `setComponent("plankton")` | Dynamical plankton spectrum | `constructor.R` + `component-functions.R` |
 | `getBiomass` S3 methods | Includes plankton in output | `generic-methods.R` |
+| Bundled data object | `example_params` ready to use | `data/`, `R/data.R`, `.onLoad` |
 
-## Quick start
+## Bundled example model
+
+The package ships a ready-made `example_params` object — a three-species
+(Sprat, Herring, Cod) model built with
+[`newExtensionTemplateParams()`](https://sizespectrum.org/mizerExtensionTemplate/reference/newExtensionTemplateParams.md).
+It is stored in `data/example_params.rda` and lazy-loaded by R, but the
+`.onLoad` hook replaces the plain binding with an active binding so that
+every access returns an object with the correct S4 extension class:
 
 ``` r
+
+class(example_params)   # mizerExtensionTemplate, not plain MizerParams
+#> [1] "mizerExtensionTemplate"
+#> attr(,"package")
+#> [1] "mizerExtensionTemplate"
+getBiomass(example_params)  # Plankton entry is present
+#>        Sprat      Herring          Cod     Plankton 
+#> 1.630305e+08 9.125316e+07 1.494402e+08 2.673020e+12
+```
+
+You can use it directly without calling
+[`newExtensionTemplateParams()`](https://sizespectrum.org/mizerExtensionTemplate/reference/newExtensionTemplateParams.md):
+
+``` r
+
+sim <- project(example_params, t_max = 5)
+plotBiomass(sim)
+```
+
+## Quick start (build your own)
+
+``` r
+
 params <- newExtensionTemplateParams(NS_species_params)
 sim    <- project(params, t_max = 10)
 plotBiomass(sim)   # Plankton column appears automatically
@@ -47,6 +78,7 @@ at `t = 0.75`. With the default amplitude of 0.2 the encounter rate
 varies by ±20 % around its annual mean.
 
 ``` r
+
 params_s <- newExtensionTemplateParams(NS_species_params, season_amplitude = 0.4)
 enc_t0   <- getEncounter(params_s, t = 0)    # multiplier = 1.0
 enc_t025 <- getEncounter(params_s, t = 0.25) # multiplier = 1.4
@@ -79,6 +111,7 @@ At each time step:
     mortality on the plankton spectrum.
 
 ``` r
+
 plotDiet(params, species = "Cod")
 ```
 
@@ -127,6 +160,10 @@ plotDiet(params, species = "Cod")
 
 Constructor ends with `params@extensions <- getRegisteredExtensions()`
 and `coerceToExtensionClass(params)`.
+
+For every `MizerParams` or `MizerSim` object bundled in `data/`, add a
+`makeActiveBinding` call in `.onLoad` (see
+`mizerExtensionTemplate-package.R`).
 
 Every S3 method is registered via `@method` + `@export`.
 

@@ -58,4 +58,4 @@ where `r` is the growth rate, `K` is the carrying capacity, and `m` is
 the predation mortality on the plankton spectrum at each size bin.
 
 This implementation follows the detritus example in
-`vignette("extending-mizer", package = "mizer")`.
+[`vignette("extending-mizer", package = "mizer")`](https://sizespectrum.org/mizer/articles/extending-mizer.html).
