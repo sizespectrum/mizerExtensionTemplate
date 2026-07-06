@@ -22,12 +22,17 @@
 #'
 #' This constructor creates a **dispatching** extension: the returned object
 #' has class `"mizerExtensionTemplate"` so that mizer's generic functions
-#' dispatch to the S3 methods defined in this package. For a
-#' **metadata-only** extension (one that does not override any generic), you
-#' would omit the `setClass()` definition in `mizerExtensionTemplate-class.R`
-#' and the `coerceToExtensionClass()` call at the end of this function. You
-#' still call `params@extensions <- getRegisteredExtensions()` so the
-#' dependency is recorded.
+#' dispatch to the S3 methods defined in this package. The marker class is
+#' **not** defined statically with `setClass()`; mizer recognises this package
+#' as a dispatching extension from the S3 methods it registers (see
+#' `mizerExtensionTemplate-class`) and creates the class dynamically at load
+#' time, which is what allows it to be chained with other extensions. The
+#' [coerceToExtensionClass()] call at the end of this function then promotes
+#' the object to that class. For a **metadata-only** extension (one that does
+#' not override any generic and so registers no dispatch methods), you would
+#' omit the `coerceToExtensionClass()` call; you still call
+#' `params@extensions <- getRegisteredExtensions()` so the dependency is
+#' recorded.
 #'
 #' @param species_params A data frame of species parameters passed directly to
 #'   [mizer::newMultispeciesParams()].

@@ -16,4 +16,17 @@ Objects of class \code{mizerExtensionTemplate} are created by
 \code{\link[=newExtensionTemplateParams]{newExtensionTemplateParams()}}. Objects of class
 \code{mizerExtensionTemplateSim} are returned automatically by \code{\link[mizer:project]{project()}}
 when called on a \code{mizerExtensionTemplate} params object.
+
+Note that the classes are \strong{not} defined statically with \code{setClass()}.
+Instead mizer creates them when the package is loaded: \code{.onLoad()} calls
+\code{\link[mizer:registerExtension]{mizer::registerExtension()}}, which recognises this package as a dispatching
+extension from the S3 methods it registers for its marker class (for example
+\code{\link[=projectEncounter.mizerExtensionTemplate]{projectEncounter.mizerExtensionTemplate()}}) and inserts the class at the
+correct place in the S4 hierarchy relative to any other extension packages
+loaded in the same session. This is what lets independently developed
+extensions be chained in either load order. Defining the class statically as
+\code{contains = "MizerParams"} would instead fix it as a direct sibling of every
+other extension and, because the class would then be sealed, prevent mizer
+from re-parenting it into the chain.
 }
+\keyword{internal}
