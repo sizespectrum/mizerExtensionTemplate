@@ -17,7 +17,7 @@ to adapt it for your own extension."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">mizerExtensionTemplate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,6 +63,7 @@ to adapt it for your own extension.</p>
 <span>  extra_food_coef <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  background_mort_coef <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  plankton_rate <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  info_level <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -97,6 +98,17 @@ added via <code><a href="https://sizespectrum.org/mizer/reference/setExtEncounte
 (yr⁻¹). Higher values make the plankton respond faster to depletion.</p></dd>
 
 
+<dt id="arg-info-level">info_level<a class="anchor" aria-label="anchor" href="#arg-info-level"></a></dt>
+<dd><p>How much <code><a href="https://sizespectrum.org/mizer/reference/newMultispeciesParams.html" class="external-link">mizer::newMultispeciesParams()</a></code> should say about
+the defaults it fills in, forwarded unchanged. This template defaults to
+<code>0</code> only to keep its own examples quiet; your own constructor will usually
+want <code>info_level = default_info_level()</code>, mizer's exported default, so that
+it follows the <code>mizer_info_level</code> option as mizer's own constructors do.
+Either way, take the argument <em>explicitly</em> rather than
+hard-coding a value in the call, or a user passing <code>info_level</code> would hit
+"formal argument \"info_level\" matched by multiple actual arguments".</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments passed to <code><a href="https://sizespectrum.org/mizer/reference/newMultispeciesParams.html" class="external-link">mizer::newMultispeciesParams()</a></code>.</p></dd>
 
@@ -122,6 +134,10 @@ time-evolution and an encounter contribution. Defined in
 <li><p><strong>S3 generic overrides</strong> — <code><a href="getBiomass.html">getBiomass.mizerExtensionTemplate()</a></code> and
 <code><a href="getBiomass.mizerExtensionTemplateSim.html">getBiomass.mizerExtensionTemplateSim()</a></code> add the plankton biomass to the
 standard output.</p></li>
+<li><p><strong><code><a href="https://sizespectrum.org/mizer/reference/signal_info.html" class="external-link">signal_info()</a></code> / <code><a href="https://sizespectrum.org/mizer/reference/with_info_level.html" class="external-link">with_info_level()</a></code></strong> — reporting a choice made on the
+user's behalf through mizer's own mechanism, so that it obeys
+<code>info_level</code> and the <code>mizer_info_level</code> option along with everything else
+mizer says. See the block at the end of this function.</p></li>
 </ol></div>
 
 <div class="section">
@@ -130,12 +146,17 @@ standard output.</p></li>
 
 <p>This constructor creates a <strong>dispatching</strong> extension: the returned object
 has class <code>"mizerExtensionTemplate"</code> so that mizer's generic functions
-dispatch to the S3 methods defined in this package. For a
-<strong>metadata-only</strong> extension (one that does not override any generic), you
-would omit the <code>setClass()</code> definition in <code>mizerExtensionTemplate-class.R</code>
-and the <code><a href="https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html" class="external-link">coerceToExtensionClass()</a></code> call at the end of this function. You
-still call <code>params@extensions &lt;- getRegisteredExtensions()</code> so the
-dependency is recorded.</p>
+dispatch to the S3 methods defined in this package. The marker class is
+<strong>not</strong> defined statically with <code>setClass()</code>; mizer recognises this package
+as a dispatching extension from the S3 methods it registers (see
+<code>mizerExtensionTemplate-class</code>) and creates the class dynamically at load
+time, which is what allows it to be chained with other extensions. The
+<code><a href="https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html" class="external-link">coerceToExtensionClass()</a></code> call at the end of this function then promotes
+the object to that class. For a <strong>metadata-only</strong> extension (one that does
+not override any generic and so registers no dispatch methods), you would
+omit the <code><a href="https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html" class="external-link">coerceToExtensionClass()</a></code> call; you still call
+<code>params@extensions &lt;- getRegisteredExtensions()</code> so the dependency is
+recorded.</p>
 </div>
 
     </div>

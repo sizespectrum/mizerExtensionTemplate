@@ -8,10 +8,10 @@ is being done and *why*. Read the source files alongside this vignette.
 
 For the full conceptual background see:
 
-- [`vignette("extending-mizer", package = "mizer")`](https://sizespectrum.org/mizer/articles/extending-mizer.html)
-  — all five extension mechanisms with worked examples.
-- [`vignette("creating-extension-packages", package = "mizer")`](https://sizespectrum.org/mizer/articles/creating-extension-packages.html)
-  — turning a script into a composable, shareable package.
+- `vignette("guide-extend-mizer", package = "mizer")` — all five
+  extension mechanisms with worked examples.
+- `vignette("guide-create-extension-package", package = "mizer")` —
+  turning a script into a composable, shareable package.
 
 ## The extension at a glance
 
@@ -24,6 +24,8 @@ For the full conceptual background see:
 | `projectEncounter` S3 method | Seasonal encounter multiplier | `rate-methods.R` |
 | `setComponent("plankton")` | Dynamical plankton spectrum | `constructor.R` + `component-functions.R` |
 | `getBiomass` S3 methods | Includes plankton in output | `generic-methods.R` |
+| Classed arrays with a `type` | [`planktonLevel()`](https://sizespectrum.org/mizerExtensionTemplate/reference/planktonLevel.md) plots as a proportion | `component-functions.R` |
+| [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.html) | Reports a choice, obeying `info_level` | `constructor.R` |
 | Bundled data object | `example_params` ready to use | `data/`, `R/data.R`, `.onLoad` |
 
 ## Bundled example model
@@ -117,6 +119,105 @@ plotDiet(params, species = "Cod")
 
 ![](mizerExtensionTemplate_files/figure-html/plankton-diet-1.png)
 
+## Returning arrays that plot themselves properly
+
+When your extension returns a size- or time-resolved quantity, wrap it
+in one of mizer’s array classes and say what kind of quantity the values
+are, with the `type` argument. There are three types: `"value"` for a
+rate or an amount, `"density"` for an amount per gram of body weight,
+and `"proportion"` for a fraction.
+
+`type` is not decoration — it decides how the array is plotted. A
+`"density"` gets multiplied by the `dw/dl` Jacobian when it is plotted
+against a length axis, because a density per gram is not a density per
+centimetre. A `"proportion"` gets a linear y axis showing the whole of
+the interval from 0 to 1, so the value can be read against the scale it
+belongs to.
+
+[`planktonLevel()`](https://sizespectrum.org/mizerExtensionTemplate/reference/planktonLevel.md)
+(`component-functions.R`) is the template’s example. It returns the
+plankton abundance as a fraction of its carrying capacity, mirroring
+mizer’s own
+[`resource_level()`](https://sizespectrum.org/mizer/reference/setResource.html):
+
+``` r
+
+lev <- planktonLevel(params)
+attr(lev, "type")
+#> [1] "proportion"
+```
+
+Because it declares itself a proportion, plotting it needs no further
+instruction — the y axis runs from 0 to 1 rather than being fitted to
+the data:
+
+``` r
+
+plot(planktonLevel(params))
+#> Warning: Removed 47 rows containing missing values or values outside the scale range
+#> (`geom_line()`).
+```
+
+![](mizerExtensionTemplate_files/figure-html/plankton-level-plot-1.png)
+
+Declare `type` for every array you return, including when it is the
+default `"value"` — as
+[`getBiomass.mizerExtensionTemplateSim()`](https://sizespectrum.org/mizerExtensionTemplate/reference/getBiomass.mizerExtensionTemplateSim.md)
+does. If you omit it, mizer falls back to guessing from `value_name` and
+`units`, which is there for backwards compatibility and is easy to fall
+foul of.
+
+## Telling the user what your extension decided
+
+When your extension makes a choice on the user’s behalf, report it
+through mizer’s own mechanism rather than with
+[`message()`](https://rdrr.io/r/base/message.html) or
+[`warning()`](https://rdrr.io/r/base/warning.html). A plain
+[`message()`](https://rdrr.io/r/base/message.html) ignores `info_level`,
+is not collected with the other reports, and is swallowed on the
+`species_params<-()` path.
+
+The constructor takes an `info_level` argument, forwards it to
+[`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.html),
+wraps its body in
+[`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.html)
+and raises one report of its own with
+[`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.html).
+The result is that the template’s report arrives in the same block as
+mizer’s, and obeys the same switch. This template defaults to
+`info_level = 0` to keep its examples quiet, so ask for the reports:
+
+``` r
+
+params_loud <- newExtensionTemplateParams(NS_species_params, info_level = 3)
+#> No h provided for some species, so using age at maturity to calculate it.
+#> Because you have n != p, the default value for `h` is not very good.
+#> Because the age at maturity is not known, I need to fall back to using
+#> von Bertalanffy parameters, where available, and this is not reliable.
+#> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
+#> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
+#> Setting the plankton capacity to half the resource capacity.
+```
+
+The last line is the template’s own. `level` decides how much it takes
+to silence a report: ours is level 3, chatter that only the default
+shows, so `info_level = 1` keeps mizer’s important reports and drops
+ours.
+
+``` r
+
+params_terse <- newExtensionTemplateParams(NS_species_params, info_level = 1)
+#> Because you have n != p, the default value for `h` is not very good.
+```
+
+In your own constructor, default the argument to
+[`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.html)
+instead, so it follows the `mizer_info_level` option as mizer’s own
+constructors do. Take the argument explicitly either way: hard-coding
+`info_level` in the call to
+[`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.html)
+makes a user who passes their own collide with it.
+
 ## Adapting this template for your extension
 
 1.  **Rename the package**: search and replace `mizerExtensionTemplate`
@@ -126,8 +227,7 @@ plotDiet(params, species = "Cod")
 2.  **Decide: metadata-only or dispatching?**
 
     - *Metadata-only* (like `mizerStarvation`): delete
-      `mizerExtensionTemplate-class.R`, remove the `setClass()` calls,
-      and remove the
+      `mizerExtensionTemplate-class.R` and remove the
       [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html)
       call at the end of the constructor. Keep
       `params@extensions <- getRegisteredExtensions()`.
@@ -153,8 +253,9 @@ plotDiet(params, species = "Cod")
 
 ## Checklist for dispatching extension authors
 
-`setClass("<myExt>", contains = "MizerParams")` and
-`setClass("<myExt>Sim", contains = "MizerSim")` in the class file.
+**No** static `setClass()` for the marker classes: mizer creates
+`<myExt>` and `<myExt>Sim` dynamically from the S3 methods you register,
+so that your extension can be chained with others in either load order.
 
 `mizer::registerExtension(pkgname, requirement = ...)` in `.onLoad`.
 
@@ -175,3 +276,14 @@ Rate modifications use `project*` methods, not
 
 Extension-specific state lives in `other_params(params)` or component
 params — not in new S4 slots.
+
+Every array returned to the user is wrapped in a mizer array class with
+an explicit `type` (`"value"`, `"density"` or `"proportion"`).
+
+Anything you tell the user goes through
+[`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.html)
+inside a
+[`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.html),
+never a bare [`message()`](https://rdrr.io/r/base/message.html) or
+[`warning()`](https://rdrr.io/r/base/warning.html); entry points take
+`info_level = default_info_level()` and forward it.

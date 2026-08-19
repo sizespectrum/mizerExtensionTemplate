@@ -19,6 +19,8 @@ illustrated with working, commented code:
 | `project*` S3 method | `R/rate-methods.R` | Seasonal encounter multiplier |
 | [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.html) | `R/constructor.R` + `R/component-functions.R` | Dynamical plankton spectrum |
 | `getBiomass` S3 override | `R/generic-methods.R` | Plankton biomass in output |
+| Classed arrays with a `type` | `R/component-functions.R` | [`planktonLevel()`](https://sizespectrum.org/mizerExtensionTemplate/reference/planktonLevel.md), a proportion that plots on a 0–1 axis |
+| [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.html) / [`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.html) | `R/constructor.R` | Reports a choice through mizer’s own `info_level` mechanism |
 | Bundled data object | `data/` + `R/data.R` + `.onLoad` | `example_params` ready to use |
 
 The template also shows both kinds of extension package:
@@ -63,8 +65,9 @@ plotBiomass(sim)   # includes a Plankton column
 2.  **Rename** `mizerExtensionTemplate` → your package name throughout:
 
     - `DESCRIPTION` (Package, Title, Description, URL, BugReports)
-    - `R/mizerExtensionTemplate-class.R` — rename the file and both
-      `setClass` calls
+    - `R/mizerExtensionTemplate-class.R` — rename the file and the class
+      names it documents (there is no `setClass()` call to rename: mizer
+      creates the marker classes dynamically)
     - `R/mizerExtensionTemplate-package.R` — update the `requirement`
       string
     - `R/constructor.R` — rename
@@ -76,8 +79,7 @@ plotBiomass(sim)   # includes a Plankton column
 
 3.  **Decide: metadata-only or dispatching?**  
     For a metadata-only extension, delete
-    `R/mizerExtensionTemplate-class.R`, remove the `setClass()` calls,
-    and drop the
+    `R/mizerExtensionTemplate-class.R` and drop the
     [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html)
     call at the end of the constructor. Keep
     `params@extensions <- getRegisteredExtensions()`.
@@ -102,14 +104,14 @@ plotBiomass(sim)   # includes a Plankton column
 
 ## Background reading
 
-- [Extending
-  mizer](https://sizespectrum.org/mizer/articles/extending-mizer.html) —
-  all five extension mechanisms with worked examples.
-- [Creating a mizer extension
-  package](https://sizespectrum.org/mizer/articles/creating-extension-packages.html)
+- [Guide: Extending
+  mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html)
+  — all five extension mechanisms with worked examples.
+- [Guide: Creating a mizer extension
+  package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html)
   — the concepts behind marker classes,
   [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) chaining, and
   composable extensions.
-- [Using mizer extension
-  packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html)
+- [Guide: Using mizer extension
+  packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
   — the user’s perspective on the extension chain.

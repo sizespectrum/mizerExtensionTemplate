@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">mizerExtensionTemplate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,6 +110,20 @@
 <td>Plankton biomass in output</td>
 </tr>
 <tr>
+<td>Classed arrays with a <code>type</code>
+</td>
+<td><code>R/component-functions.R</code></td>
+<td>
+<code><a href="reference/planktonLevel.html">planktonLevel()</a></code>, a proportion that plots on a 0–1 axis</td>
+</tr>
+<tr>
+<td>
+<code><a href="https://sizespectrum.org/mizer/reference/signal_info.html" class="external-link">signal_info()</a></code> / <code><a href="https://sizespectrum.org/mizer/reference/with_info_level.html" class="external-link">with_info_level()</a></code>
+</td>
+<td><code>R/constructor.R</code></td>
+<td>Reports a choice through mizer’s own <code>info_level</code> mechanism</td>
+</tr>
+<tr>
 <td>Bundled data object</td>
 <td>
 <code>data/</code> + <code>R/data.R</code> + <code>.onLoad</code>
@@ -159,7 +173,7 @@
 <li>
 <code>DESCRIPTION</code> (Package, Title, Description, URL, BugReports)</li>
 <li>
-<code>R/mizerExtensionTemplate-class.R</code> — rename the file and both <code>setClass</code> calls</li>
+<code>R/mizerExtensionTemplate-class.R</code> — rename the file and the class names it documents (there is no <code>setClass()</code> call to rename: mizer creates the marker classes dynamically)</li>
 <li>
 <code>R/mizerExtensionTemplate-package.R</code> — update the <code>requirement</code> string</li>
 <li>
@@ -172,7 +186,7 @@
 </ul>
 </li>
 <li><p><strong>Decide: metadata-only or dispatching?</strong><br>
-For a metadata-only extension, delete <code>R/mizerExtensionTemplate-class.R</code>, remove the <code>setClass()</code> calls, and drop the <code><a href="https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html" class="external-link">coerceToExtensionClass()</a></code> call at the end of the constructor. Keep <code>params@extensions &lt;- getRegisteredExtensions()</code>.</p></li>
+For a metadata-only extension, delete <code>R/mizerExtensionTemplate-class.R</code> and drop the <code><a href="https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html" class="external-link">coerceToExtensionClass()</a></code> call at the end of the constructor. Keep <code>params@extensions &lt;- getRegisteredExtensions()</code>.</p></li>
 <li><p><strong>Replace the placeholder extension logic</strong> with your own. Each mechanism in <code>R/constructor.R</code> is independent — delete the ones you don’t need.</p></li>
 <li><p><strong>If you ship a bundled data object</strong> in <code>data/</code>, add a <code>makeActiveBinding</code> call to <code>.onLoad</code> (see <code>R/mizerExtensionTemplate-package.R</code>) so that users always get a correctly classed object regardless of load order.</p></li>
 <li>
@@ -189,11 +203,11 @@ For a metadata-only extension, delete <code>R/mizerExtensionTemplate-class.R</co
 </h2>
 <ul>
 <li>
-<a href="https://sizespectrum.org/mizer/articles/extending-mizer.html" class="external-link">Extending mizer</a> — all five extension mechanisms with worked examples.</li>
+<a href="https://sizespectrum.org/mizer/articles/guide-extend-mizer.html" class="external-link">Guide: Extending mizer</a> — all five extension mechanisms with worked examples.</li>
 <li>
-<a href="https://sizespectrum.org/mizer/articles/creating-extension-packages.html" class="external-link">Creating a mizer extension package</a> — the concepts behind marker classes, <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> chaining, and composable extensions.</li>
+<a href="https://sizespectrum.org/mizer/articles/guide-create-extension-package.html" class="external-link">Guide: Creating a mizer extension package</a> — the concepts behind marker classes, <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> chaining, and composable extensions.</li>
 <li>
-<a href="https://sizespectrum.org/mizer/articles/using-extension-packages.html" class="external-link">Using mizer extension packages</a> — the user’s perspective on the extension chain.</li>
+<a href="https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html" class="external-link">Guide: Using mizer extension packages</a> — the user’s perspective on the extension chain.</li>
 </ul>
 </div>
 </div>

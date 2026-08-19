@@ -13,6 +13,7 @@ newExtensionTemplateParams(
   extra_food_coef = 0.1,
   background_mort_coef = 0.05,
   plankton_rate = 0.5,
+  info_level = 0,
   ...
 )
 ```
@@ -46,6 +47,19 @@ newExtensionTemplateParams(
 
   Intrinsic growth rate of the plankton component (yr⁻¹). Higher values
   make the plankton respond faster to depletion.
+
+- info_level:
+
+  How much
+  [`mizer::newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.html)
+  should say about the defaults it fills in, forwarded unchanged. This
+  template defaults to `0` only to keep its own examples quiet; your own
+  constructor will usually want `info_level = default_info_level()`,
+  mizer's exported default, so that it follows the `mizer_info_level`
+  option as mizer's own constructors do. Either way, take the argument
+  *explicitly* rather than hard-coding a value in the call, or a user
+  passing `info_level` would hit "formal argument \\info_level\\ matched
+  by multiple actual arguments".
 
 - ...:
 
@@ -83,18 +97,31 @@ A `MizerParams` object of class `"mizerExtensionTemplate"`.
     [`getBiomass.mizerExtensionTemplateSim()`](https://sizespectrum.org/mizerExtensionTemplate/reference/getBiomass.mizerExtensionTemplateSim.md)
     add the plankton biomass to the standard output.
 
+5.  **[`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.html)
+    /
+    [`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.html)**
+    — reporting a choice made on the user's behalf through mizer's own
+    mechanism, so that it obeys `info_level` and the `mizer_info_level`
+    option along with everything else mizer says. See the block at the
+    end of this function.
+
 ### Metadata-only vs. dispatching extensions
 
 This constructor creates a **dispatching** extension: the returned
 object has class `"mizerExtensionTemplate"` so that mizer's generic
-functions dispatch to the S3 methods defined in this package. For a
-**metadata-only** extension (one that does not override any generic),
-you would omit the `setClass()` definition in
-`mizerExtensionTemplate-class.R` and the
+functions dispatch to the S3 methods defined in this package. The marker
+class is **not** defined statically with `setClass()`; mizer recognises
+this package as a dispatching extension from the S3 methods it registers
+(see `mizerExtensionTemplate-class`) and creates the class dynamically
+at load time, which is what allows it to be chained with other
+extensions. The
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html)
-call at the end of this function. You still call
-`params@extensions <- getRegisteredExtensions()` so the dependency is
-recorded.
+call at the end of this function then promotes the object to that class.
+For a **metadata-only** extension (one that does not override any
+generic and so registers no dispatch methods), you would omit the
+[`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html)
+call; you still call `params@extensions <- getRegisteredExtensions()` so
+the dependency is recorded.
 
 ## See also
 

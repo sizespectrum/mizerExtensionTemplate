@@ -15,7 +15,7 @@ dispatch for extension-specific methods defined in this package."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">mizerExtensionTemplate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,6 +62,17 @@ parameters of the "plankton" component (see <code><a href="https://sizespectrum.
 <code><a href="newExtensionTemplateParams.html">newExtensionTemplateParams()</a></code>. Objects of class
 <code>mizerExtensionTemplateSim</code> are returned automatically by <code><a href="https://sizespectrum.org/mizer/reference/project.html" class="external-link">project()</a></code>
 when called on a <code>mizerExtensionTemplate</code> params object.</p>
+<p>Note that the classes are <strong>not</strong> defined statically with <code>setClass()</code>.
+Instead mizer creates them when the package is loaded: <code><a href="dot-onLoad.html">.onLoad()</a></code> calls
+<code><a href="https://sizespectrum.org/mizer/reference/registerExtension.html" class="external-link">mizer::registerExtension()</a></code>, which recognises this package as a dispatching
+extension from the S3 methods it registers for its marker class (for example
+<code><a href="projectEncounter.mizerExtensionTemplate.html">projectEncounter.mizerExtensionTemplate()</a></code>) and inserts the class at the
+correct place in the S4 hierarchy relative to any other extension packages
+loaded in the same session. This is what lets independently developed
+extensions be chained in either load order. Defining the class statically as
+<code>contains = "MizerParams"</code> would instead fix it as a direct sibling of every
+other extension and, because the class would then be sealed, prevent mizer
+from re-parenting it into the chain.</p>
     </div>
 
   </main></div>

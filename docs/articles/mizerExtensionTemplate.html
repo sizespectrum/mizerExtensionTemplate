@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizerExtensionTemplate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,10 +83,10 @@ files alongside this vignette.</p>
 <p>For the full conceptual background see:</p>
 <ul>
 <li>
-<code><a href="https://sizespectrum.org/mizer/articles/extending-mizer.html" class="external-link">vignette("extending-mizer", package = "mizer")</a></code> — all
+<code>vignette("guide-extend-mizer", package = "mizer")</code> — all
 five extension mechanisms with worked examples.</li>
 <li>
-<code><a href="https://sizespectrum.org/mizer/articles/creating-extension-packages.html" class="external-link">vignette("creating-extension-packages", package = "mizer")</a></code>
+<code>vignette("guide-create-extension-package", package = "mizer")</code>
 — turning a script into a composable, shareable package.</li>
 </ul>
 </div>
@@ -135,6 +135,19 @@ mizer model:</p>
 <code>getBiomass</code> S3 methods</td>
 <td>Includes plankton in output</td>
 <td><code>generic-methods.R</code></td>
+</tr>
+<tr class="even">
+<td>Classed arrays with a <code>type</code>
+</td>
+<td>
+<code><a href="../reference/planktonLevel.html">planktonLevel()</a></code> plots as a proportion</td>
+<td><code>component-functions.R</code></td>
+</tr>
+<tr class="odd">
+<td><code><a href="https://sizespectrum.org/mizer/reference/signal_info.html" class="external-link">signal_info()</a></code></td>
+<td>Reports a choice, obeying <code>info_level</code>
+</td>
+<td><code>constructor.R</code></td>
 </tr>
 <tr class="even">
 <td>Bundled data object</td>
@@ -225,6 +238,84 @@ spectrum.</li>
 <p><img src="mizerExtensionTemplate_files/figure-html/plankton-diet-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
+<h2 id="returning-arrays-that-plot-themselves-properly">Returning arrays that plot themselves properly<a class="anchor" aria-label="anchor" href="#returning-arrays-that-plot-themselves-properly"></a>
+</h2>
+<p>When your extension returns a size- or time-resolved quantity, wrap
+it in one of mizer’s array classes and say what kind of quantity the
+values are, with the <code>type</code> argument. There are three types:
+<code>"value"</code> for a rate or an amount, <code>"density"</code> for
+an amount per gram of body weight, and <code>"proportion"</code> for a
+fraction.</p>
+<p><code>type</code> is not decoration — it decides how the array is
+plotted. A <code>"density"</code> gets multiplied by the
+<code>dw/dl</code> Jacobian when it is plotted against a length axis,
+because a density per gram is not a density per centimetre. A
+<code>"proportion"</code> gets a linear y axis showing the whole of the
+interval from 0 to 1, so the value can be read against the scale it
+belongs to.</p>
+<p><code><a href="../reference/planktonLevel.html">planktonLevel()</a></code> (<code>component-functions.R</code>) is
+the template’s example. It returns the plankton abundance as a fraction
+of its carrying capacity, mirroring mizer’s own
+<code><a href="https://sizespectrum.org/mizer/reference/setResource.html" class="external-link">resource_level()</a></code>:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lev</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/planktonLevel.html">planktonLevel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">lev</span>, <span class="st">"type"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "proportion"</span></span></code></pre></div>
+<p>Because it declares itself a proportion, plotting it needs no further
+instruction — the y axis runs from 0 to 1 rather than being fitted to
+the data:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/planktonLevel.html">planktonLevel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Removed 47 rows containing missing values or values outside the scale range</span></span>
+<span><span class="co">#&gt; (`geom_line()`).</span></span></code></pre></div>
+<p><img src="mizerExtensionTemplate_files/figure-html/plankton-level-plot-1.png" class="r-plt" alt="" width="700"></p>
+<p>Declare <code>type</code> for every array you return, including when
+it is the default <code>"value"</code> — as
+<code><a href="../reference/getBiomass.mizerExtensionTemplateSim.html">getBiomass.mizerExtensionTemplateSim()</a></code> does. If you omit
+it, mizer falls back to guessing from <code>value_name</code> and
+<code>units</code>, which is there for backwards compatibility and is
+easy to fall foul of.</p>
+</div>
+<div class="section level2">
+<h2 id="telling-the-user-what-your-extension-decided">Telling the user what your extension decided<a class="anchor" aria-label="anchor" href="#telling-the-user-what-your-extension-decided"></a>
+</h2>
+<p>When your extension makes a choice on the user’s behalf, report it
+through mizer’s own mechanism rather than with <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> or
+<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code>. A plain <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> ignores
+<code>info_level</code>, is not collected with the other reports, and is
+swallowed on the <code>species_params&lt;-()</code> path.</p>
+<p>The constructor takes an <code>info_level</code> argument, forwards
+it to <code><a href="https://sizespectrum.org/mizer/reference/newMultispeciesParams.html" class="external-link">newMultispeciesParams()</a></code>, wraps its body in
+<code><a href="https://sizespectrum.org/mizer/reference/with_info_level.html" class="external-link">with_info_level()</a></code> and raises one report of its own with
+<code><a href="https://sizespectrum.org/mizer/reference/signal_info.html" class="external-link">signal_info()</a></code>. The result is that the template’s report
+arrives in the same block as mizer’s, and obeys the same switch. This
+template defaults to <code>info_level = 0</code> to keep its examples
+quiet, so ask for the reports:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">params_loud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newExtensionTemplateParams.html">newExtensionTemplateParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, info_level <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; No h provided for some species, so using age at maturity to calculate it.</span></span>
+<span><span class="co">#&gt; Because you have n != p, the default value for `h` is not very good.</span></span>
+<span><span class="co">#&gt; Because the age at maturity is not known, I need to fall back to using</span></span>
+<span><span class="co">#&gt; von Bertalanffy parameters, where available, and this is not reliable.</span></span>
+<span><span class="co">#&gt; Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.</span></span>
+<span><span class="co">#&gt; Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span></span>
+<span><span class="co">#&gt; Setting the plankton capacity to half the resource capacity.</span></span></code></pre></div>
+<p>The last line is the template’s own. <code>level</code> decides how
+much it takes to silence a report: ours is level 3, chatter that only
+the default shows, so <code>info_level = 1</code> keeps mizer’s
+important reports and drops ours.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">params_terse</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newExtensionTemplateParams.html">newExtensionTemplateParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, info_level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Because you have n != p, the default value for `h` is not very good.</span></span></code></pre></div>
+<p>In your own constructor, default the argument to
+<code><a href="https://sizespectrum.org/mizer/reference/default_info_level.html" class="external-link">default_info_level()</a></code> instead, so it follows the
+<code>mizer_info_level</code> option as mizer’s own constructors do.
+Take the argument explicitly either way: hard-coding
+<code>info_level</code> in the call to
+<code><a href="https://sizespectrum.org/mizer/reference/newMultispeciesParams.html" class="external-link">newMultispeciesParams()</a></code> makes a user who passes their own
+collide with it.</p>
+</div>
+<div class="section level2">
 <h2 id="adapting-this-template-for-your-extension">Adapting this template for your extension<a class="anchor" aria-label="anchor" href="#adapting-this-template-for-your-extension"></a>
 </h2>
 <ol style="list-style-type: decimal">
@@ -237,8 +328,7 @@ files, including <code>DESCRIPTION</code>, the R files,
 <ul>
 <li>
 <em>Metadata-only</em> (like <code>mizerStarvation</code>): delete
-<code>mizerExtensionTemplate-class.R</code>, remove the
-<code>setClass()</code> calls, and remove the
+<code>mizerExtensionTemplate-class.R</code> and remove the
 <code><a href="https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html" class="external-link">coerceToExtensionClass()</a></code> call at the end of the
 constructor. Keep
 <code>params@extensions &lt;- getRegisteredExtensions()</code>.</li>
@@ -263,9 +353,11 @@ publishing.</p></li>
 <h2 id="checklist-for-dispatching-extension-authors">Checklist for dispatching extension authors<a class="anchor" aria-label="anchor" href="#checklist-for-dispatching-extension-authors"></a>
 </h2>
 <ul class="task-list">
-<li><label><input type="checkbox"><code>setClass("&lt;myExt&gt;", contains = "MizerParams")</code>
-and <code>setClass("&lt;myExt&gt;Sim", contains = "MizerSim")</code> in
-the class file.</label></li>
+<li><label><input type="checkbox"><strong>No</strong> static
+<code>setClass()</code> for the marker classes: mizer creates
+<code>&lt;myExt&gt;</code> and <code>&lt;myExt&gt;Sim</code> dynamically
+from the S3 methods you register, so that your extension can be chained
+with others in either load order.</label></li>
 <li><label><input type="checkbox"><code>mizer::registerExtension(pkgname, requirement = ...)</code>
 in <code>.onLoad</code>.</label></li>
 <li><label><input type="checkbox">Constructor ends with
@@ -285,6 +377,16 @@ or <code>MizerSim</code> object bundled in <code>data/</code>, add a
 <li><label><input type="checkbox">Extension-specific state lives in
 <code>other_params(params)</code> or component params — not in new S4
 slots.</label></li>
+<li><label><input type="checkbox">Every array returned to the user is
+wrapped in a mizer array class with an explicit <code>type</code>
+(<code>"value"</code>, <code>"density"</code> or
+<code>"proportion"</code>).</label></li>
+<li><label><input type="checkbox">Anything you tell the user goes
+through <code><a href="https://sizespectrum.org/mizer/reference/signal_info.html" class="external-link">signal_info()</a></code> inside a
+<code><a href="https://sizespectrum.org/mizer/reference/with_info_level.html" class="external-link">with_info_level()</a></code>, never a bare <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> or
+<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code>; entry points take
+<code>info_level = default_info_level()</code> and forward
+it.</label></li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
