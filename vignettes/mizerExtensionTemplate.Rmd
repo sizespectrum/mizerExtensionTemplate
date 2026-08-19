@@ -25,9 +25,9 @@ done and *why*. Read the source files alongside this vignette.
 
 For the full conceptual background see:
 
-- `vignette("extending-mizer", package = "mizer")` — all five extension
+- `vignette("guide-extend-mizer", package = "mizer")` — all five extension
   mechanisms with worked examples.
-- `vignette("creating-extension-packages", package = "mizer")` — turning
+- `vignette("guide-create-extension-package", package = "mizer")` — turning
   a script into a composable, shareable package.
 
 # The extension at a glance
@@ -41,6 +41,8 @@ For the full conceptual background see:
 | `projectEncounter` S3 method | Seasonal encounter multiplier | `rate-methods.R` |
 | `setComponent("plankton")` | Dynamical plankton spectrum | `constructor.R` + `component-functions.R` |
 | `getBiomass` S3 methods | Includes plankton in output | `generic-methods.R` |
+| Classed arrays with a `type` | `planktonLevel()` plots as a proportion | `component-functions.R` |
+| `signal_info()` | Reports a choice, obeying `info_level` | `constructor.R` |
 | Bundled data object | `example_params` ready to use | `data/`, `R/data.R`, `.onLoad` |
 
 # Bundled example model
@@ -112,6 +114,71 @@ At each time step:
 plotDiet(params, species = "Cod")
 ```
 
+# Returning arrays that plot themselves properly
+
+When your extension returns a size- or time-resolved quantity, wrap it in one of
+mizer's array classes and say what kind of quantity the values are, with the
+`type` argument. There are three types: `"value"` for a rate or an amount,
+`"density"` for an amount per gram of body weight, and `"proportion"` for a
+fraction.
+
+`type` is not decoration — it decides how the array is plotted. A `"density"`
+gets multiplied by the `dw/dl` Jacobian when it is plotted against a length
+axis, because a density per gram is not a density per centimetre. A
+`"proportion"` gets a linear y axis showing the whole of the interval from 0 to
+1, so the value can be read against the scale it belongs to.
+
+`planktonLevel()` (`component-functions.R`) is the template's example. It
+returns the plankton abundance as a fraction of its carrying capacity, mirroring
+mizer's own `resource_level()`:
+
+```{r plankton-level}
+lev <- planktonLevel(params)
+attr(lev, "type")
+```
+
+Because it declares itself a proportion, plotting it needs no further
+instruction — the y axis runs from 0 to 1 rather than being fitted to the data:
+
+```{r plankton-level-plot}
+plot(planktonLevel(params))
+```
+
+Declare `type` for every array you return, including when it is the default
+`"value"` — as `getBiomass.mizerExtensionTemplateSim()` does. If you omit it,
+mizer falls back to guessing from `value_name` and `units`, which is there for
+backwards compatibility and is easy to fall foul of.
+
+# Telling the user what your extension decided
+
+When your extension makes a choice on the user's behalf, report it through
+mizer's own mechanism rather than with `message()` or `warning()`. A plain
+`message()` ignores `info_level`, is not collected with the other reports, and is
+swallowed on the `species_params<-()` path.
+
+The constructor takes an `info_level` argument, forwards it to
+`newMultispeciesParams()`, wraps its body in `with_info_level()` and raises one
+report of its own with `signal_info()`. The result is that the template's report
+arrives in the same block as mizer's, and obeys the same switch. This template
+defaults to `info_level = 0` to keep its examples quiet, so ask for the reports:
+
+```{r info-level}
+params_loud <- newExtensionTemplateParams(NS_species_params, info_level = 3)
+```
+
+The last line is the template's own. `level` decides how much it takes to
+silence a report: ours is level 3, chatter that only the default shows, so
+`info_level = 1` keeps mizer's important reports and drops ours.
+
+```{r info-level-1}
+params_terse <- newExtensionTemplateParams(NS_species_params, info_level = 1)
+```
+
+In your own constructor, default the argument to `default_info_level()` instead,
+so it follows the `mizer_info_level` option as mizer's own constructors do. Take
+the argument explicitly either way: hard-coding `info_level` in the call to
+`newMultispeciesParams()` makes a user who passes their own collide with it.
+
 # Adapting this template for your extension
 
 1. **Rename the package**: search and replace `mizerExtensionTemplate` → your
@@ -120,9 +187,9 @@ plotDiet(params, species = "Cod")
 
 2. **Decide: metadata-only or dispatching?**
    - *Metadata-only* (like `mizerStarvation`): delete
-     `mizerExtensionTemplate-class.R`, remove the `setClass()` calls, and
-     remove the `coerceToExtensionClass()` call at the end of the
-     constructor. Keep `params@extensions <- getRegisteredExtensions()`.
+     `mizerExtensionTemplate-class.R` and remove the
+     `coerceToExtensionClass()` call at the end of the constructor. Keep
+     `params@extensions <- getRegisteredExtensions()`.
    - *Dispatching* (like `mizerShelf`): keep everything and define S3
      methods for the generics you need to override.
 
@@ -138,8 +205,9 @@ plotDiet(params, species = "Cod")
 
 # Checklist for dispatching extension authors
 
-- [ ] `setClass("<myExt>", contains = "MizerParams")` and
-  `setClass("<myExt>Sim", contains = "MizerSim")` in the class file.
+- [ ] **No** static `setClass()` for the marker classes: mizer creates
+  `<myExt>` and `<myExt>Sim` dynamically from the S3 methods you register, so
+  that your extension can be chained with others in either load order.
 - [ ] `mizer::registerExtension(pkgname, requirement = ...)` in `.onLoad`.
 - [ ] Constructor ends with `params@extensions <- getRegisteredExtensions()`
   and `coerceToExtensionClass(params)`.
@@ -150,3 +218,8 @@ plotDiet(params, species = "Cod")
 - [ ] Rate modifications use `project*` methods, not `setRateFunction()`.
 - [ ] Extension-specific state lives in `other_params(params)` or component
   params — not in new S4 slots.
+- [ ] Every array returned to the user is wrapped in a mizer array class with an
+  explicit `type` (`"value"`, `"density"` or `"proportion"`).
+- [ ] Anything you tell the user goes through `signal_info()` inside a
+  `with_info_level()`, never a bare `message()` or `warning()`; entry points take
+  `info_level = default_info_level()` and forward it.

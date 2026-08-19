@@ -74,6 +74,13 @@ getBiomass.mizerExtensionTemplateSim <- function(object, ...) {
     b <- cbind(b, Plankton = plankton_biomass)
     names(dimnames(b)) <- dimname_names
 
+    # Re-wrap in the mizer array class so that plot(), summary() and the
+    # plotting functions treat the result as they treat mizer's own output.
+    # `type` says what kind of quantity the values are: a biomass is an amount,
+    # so "value". Say it explicitly even when it is the default — the fallback
+    # that guesses from `value_name` and `units` exists for backwards
+    # compatibility only. See planktonLevel() for a case where the type
+    # changes how the array is plotted.
     ArrayTimeBySpecies(b, value_name = "Biomass", units = "g",
-                       params = params)
+                       type = "value", params = params)
 }

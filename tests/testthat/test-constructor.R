@@ -41,3 +41,31 @@ test_that("season_amplitude is stored in other_params", {
     amp <- other_params(params)$mizerExtensionTemplate$season_amplitude
     expect_equal(amp, 0.3)
 })
+
+test_that("the constructor reports its own choices through info_level", {
+    # The template defaults to info_level = 0 to keep its examples quiet.
+    expect_silent(newExtensionTemplateParams(NS_species_params))
+
+    # Reports are collected and given together when the call finishes, so match
+    # on the combined text rather than expecting one message per report.
+    expect_message(
+        newExtensionTemplateParams(NS_species_params, info_level = 3),
+        "plankton capacity to half the resource capacity"
+    )
+
+    # Our report is level 3, so info_level = 1 drops it while keeping mizer's
+    # own important ones.
+    msgs <- testthat::capture_messages(
+        newExtensionTemplateParams(NS_species_params, info_level = 1)
+    )
+    expect_false(any(grepl("plankton capacity", msgs)))
+})
+
+test_that("info_level does not change the model that is built", {
+    quiet <- newExtensionTemplateParams(NS_species_params, info_level = 0)
+    loud  <- suppressMessages(
+        newExtensionTemplateParams(NS_species_params, info_level = 3)
+    )
+    expect_equal(quiet@initial_n_other$plankton, loud@initial_n_other$plankton)
+    expect_equal(quiet@initial_n, loud@initial_n)
+})

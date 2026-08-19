@@ -17,6 +17,10 @@
 #' 4. **S3 generic overrides** — [getBiomass.mizerExtensionTemplate()] and
 #'    [getBiomass.mizerExtensionTemplateSim()] add the plankton biomass to the
 #'    standard output.
+#' 5. **`signal_info()` / `with_info_level()`** — reporting a choice made on the
+#'    user's behalf through mizer's own mechanism, so that it obeys
+#'    `info_level` and the `mizer_info_level` option along with everything else
+#'    mizer says. See the block at the end of this function.
 #'
 #' ## Metadata-only vs. dispatching extensions
 #'
@@ -45,6 +49,14 @@
 #'   `setExtMort()`. Set to `0` to disable.
 #' @param plankton_rate Intrinsic growth rate of the plankton component
 #'   (yr⁻¹). Higher values make the plankton respond faster to depletion.
+#' @param info_level How much [mizer::newMultispeciesParams()] should say about
+#'   the defaults it fills in, forwarded unchanged. This template defaults to
+#'   `0` only to keep its own examples quiet; your own constructor will usually
+#'   want `info_level = default_info_level()`, mizer's exported default, so that
+#'   it follows the `mizer_info_level` option as mizer's own constructors do.
+#'   Either way, take the argument *explicitly* rather than
+#'   hard-coding a value in the call, or a user passing `info_level` would hit
+#'   "formal argument \"info_level\" matched by multiple actual arguments".
 #' @param ... Additional arguments passed to [mizer::newMultispeciesParams()].
 #'
 #' @return A `MizerParams` object of class `"mizerExtensionTemplate"`.
@@ -58,9 +70,28 @@ newExtensionTemplateParams <- function(
         extra_food_coef     = 0.1,
         background_mort_coef = 0.05,
         plankton_rate       = 0.5,
+        info_level          = 0,
         ...) {
 
-    params <- newMultispeciesParams(species_params, info_level = 0, ...)
+    # -------------------------------------------------------------------------
+    # Mechanism 5: reporting to the user
+    #
+    # with_info_level() collects the reports raised anywhere inside this
+    # function — by mizer's own setters and by our signal_info() call below —
+    # and gives them to the user together when the constructor returns.
+    #
+    # Wrap the whole body. The handlers nest by themselves: if the user called
+    # us from inside another function that is already collecting, ours steps
+    # aside and lets the outer one report. So you never have to check.
+    #
+    # Never use message() or warning() for this. They ignore info_level, they
+    # are not collected with the other reports, and on the species_params<-()
+    # path a message() is swallowed outright.
+    # -------------------------------------------------------------------------
+    with_info_level(info_level = info_level, {
+
+    params <- newMultispeciesParams(species_params,
+                                    info_level = info_level, ...)
 
     # -------------------------------------------------------------------------
     # Mechanism 1: setExtEncounter() and setExtMort()
@@ -118,6 +149,21 @@ newExtensionTemplateParams <- function(
     # params@other_params[["plankton"]].
     # -------------------------------------------------------------------------
     plankton_capacity <- initialNResource(params) * 0.5
+    # A choice made on the user's behalf, so we say so. `var` names the quantity
+    # the report is about, and `level` says how important it is: level 1 survives
+    # `info_level = 1`, level 3 is chatter that only the default shows. This is
+    # chatter, so level 3.
+    #
+    # Two further arguments matter when your own report is not routine:
+    #   severity = "warning" for something the user asked for that is not
+    #     happening — an "info" report is suppressed on the species_params<-()
+    #     path and would never be seen there.
+    #   unhandled = "show" to report even when nothing is collecting, which is
+    #     right when yours may be all the user hears.
+    signal_info("plankton_capacity",
+                paste("Setting the plankton capacity to half the resource",
+                      "capacity."),
+                level = 3)
     plankton_params <- list(
         capacity = plankton_capacity,
         rate     = rep(plankton_rate, length(plankton_capacity))
@@ -156,4 +202,6 @@ newExtensionTemplateParams <- function(
     params@extensions <- getRegisteredExtensions()
     params <- coerceToExtensionClass(params)
     params
+
+    })  # end with_info_level()
 }

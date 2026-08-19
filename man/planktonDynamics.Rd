@@ -41,5 +41,5 @@ where \code{r} is the growth rate, \code{K} is the carrying capacity, and \code{
 predation mortality on the plankton spectrum at each size bin.
 
 This implementation follows the detritus example in
-\code{vignette("extending-mizer", package = "mizer")}.
+\code{vignette("guide-extend-mizer", package = "mizer")}.
 }

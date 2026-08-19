@@ -10,6 +10,7 @@ newExtensionTemplateParams(
   extra_food_coef = 0.1,
   background_mort_coef = 0.05,
   plankton_rate = 0.5,
+  info_level = 0,
   ...
 )
 }
@@ -29,6 +30,15 @@ added via \code{setExtEncounter()}. Set to \code{0} to disable.}
 
 \item{plankton_rate}{Intrinsic growth rate of the plankton component
 (yr⁻¹). Higher values make the plankton respond faster to depletion.}
+
+\item{info_level}{How much \code{\link[mizer:newMultispeciesParams]{mizer::newMultispeciesParams()}} should say about
+the defaults it fills in, forwarded unchanged. This template defaults to
+\code{0} only to keep its own examples quiet; your own constructor will usually
+want \code{info_level = default_info_level()}, mizer's exported default, so that
+it follows the \code{mizer_info_level} option as mizer's own constructors do.
+Either way, take the argument \emph{explicitly} rather than
+hard-coding a value in the call, or a user passing \code{info_level} would hit
+"formal argument \"info_level\" matched by multiple actual arguments".}
 
 \item{...}{Additional arguments passed to \code{\link[mizer:newMultispeciesParams]{mizer::newMultispeciesParams()}}.}
 }
@@ -54,6 +64,10 @@ time-evolution and an encounter contribution. Defined in
 \item \strong{S3 generic overrides} — \code{\link[=getBiomass.mizerExtensionTemplate]{getBiomass.mizerExtensionTemplate()}} and
 \code{\link[=getBiomass.mizerExtensionTemplateSim]{getBiomass.mizerExtensionTemplateSim()}} add the plankton biomass to the
 standard output.
+\item \strong{\code{signal_info()} / \code{with_info_level()}} — reporting a choice made on the
+user's behalf through mizer's own mechanism, so that it obeys
+\code{info_level} and the \code{mizer_info_level} option along with everything else
+mizer says. See the block at the end of this function.
 }
 }
 

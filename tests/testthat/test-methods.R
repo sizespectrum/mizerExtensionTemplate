@@ -54,3 +54,26 @@ test_that("planktonDynamics preserves non-negativity after projection", {
     expect_true(all(pl >= 0))
   }
 })
+
+test_that("planktonLevel() declares itself a proportion", {
+  params <- newExtensionTemplateParams(NS_species_params)
+  lev    <- planktonLevel(params)
+
+  expect_s3_class(lev, "ArrayResourceBySize")
+  expect_identical(attr(lev, "type"), "proportion")
+  expect_length(lev, length(w_full(params)))
+  # The constructor starts the plankton at half its capacity.
+  expect_equal(unique(round(as.numeric(lev[is.finite(lev)]), 10)), 0.5)
+})
+
+test_that("the declared type gives a proportion the 0-1 y axis", {
+  params <- newExtensionTemplateParams(NS_species_params)
+  g      <- plot(planktonLevel(params))
+  expect_equal(ggplot2::layer_scales(g)$y$get_limits(), c(0, 1))
+})
+
+test_that("getBiomass arrays declare themselves plain values", {
+  params <- newExtensionTemplateParams(NS_species_params)
+  sim    <- project(params, t_max = 2, t_save = 1)
+  expect_identical(attr(getBiomass(sim), "type"), "value")
+})

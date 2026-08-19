@@ -32,7 +32,7 @@ automatically by \code{\link[mizer:getEncounter]{mizer::getEncounter()}} at each
 }
 \details{
 The implementation is taken directly from the detritus example in
-\code{vignette("extending-mizer", package = "mizer")}. It treats the plankton
+\code{vignette("guide-extend-mizer", package = "mizer")}. It treats the plankton
 spectrum as the resource (\code{n_pp}) in a standard mizer encounter calculation,
 after first removing the plankton's own encounter hook from the temporary
 params copy to avoid double-counting.
