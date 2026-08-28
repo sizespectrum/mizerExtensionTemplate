@@ -65,7 +65,7 @@ newExtensionTemplateParams <- function(
         extra_food_coef     = 0.1,
         background_mort_coef = 0.05,
         plankton_rate       = 0.5,
-        info_level          = 0,
+        info_level          = default_info_level(),
         ...) {
 
     # -------------------------------------------------------------------------
