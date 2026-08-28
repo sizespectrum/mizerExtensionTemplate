@@ -16,9 +16,9 @@ Useful links:
 ## Author
 
 **Maintainer**: First Last <author@example.com>
-([ORCID](https://orcid.org/0000-0000-0000-0000))
+([ORCID](https://orcid.org/0000-0003-4092-8228))
 
 Authors:
 
 - First Last <author@example.com>
-  ([ORCID](https://orcid.org/0000-0000-0000-0000))
+  ([ORCID](https://orcid.org/0000-0003-4092-8228))

@@ -39,6 +39,7 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="articles/mizerExtensionTemplate.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -74,56 +75,56 @@
 <col width="16%">
 <col width="57%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Mechanism</th>
 <th>Where</th>
 <th>What the template adds</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code><a href="https://sizespectrum.org/mizer/reference/setExtEncounter.html" class="external-link">setExtEncounter()</a></code></td>
 <td><code>R/constructor.R</code></td>
 <td>Allometric extra food source</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code><a href="https://sizespectrum.org/mizer/reference/setExtMort.html" class="external-link">setExtMort()</a></code></td>
 <td><code>R/constructor.R</code></td>
 <td>Size-dependent background mortality</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>
 <code>project*</code> S3 method</td>
 <td><code>R/rate-methods.R</code></td>
 <td>Seasonal encounter multiplier</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code><a href="https://sizespectrum.org/mizer/reference/setComponent.html" class="external-link">setComponent()</a></code></td>
 <td>
 <code>R/constructor.R</code> + <code>R/component-functions.R</code>
 </td>
 <td>Dynamical plankton spectrum</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>
 <code>getBiomass</code> S3 override</td>
 <td><code>R/generic-methods.R</code></td>
 <td>Plankton biomass in output</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Classed arrays with a <code>type</code>
 </td>
 <td><code>R/component-functions.R</code></td>
 <td>
 <code><a href="reference/planktonLevel.html">planktonLevel()</a></code>, a proportion that plots on a 0–1 axis</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>
 <code><a href="https://sizespectrum.org/mizer/reference/signal_info.html" class="external-link">signal_info()</a></code> / <code><a href="https://sizespectrum.org/mizer/reference/with_info_level.html" class="external-link">with_info_level()</a></code>
 </td>
 <td><code>R/constructor.R</code></td>
 <td>Reports a choice through mizer’s own <code>info_level</code> mechanism</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Bundled data object</td>
 <td>
 <code>data/</code> + <code>R/data.R</code>
@@ -145,7 +146,7 @@
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install from GitHub (requires the development version of mizer)</span></span>
+<code class="sourceCode R"><span><span class="co"># Install from GitHub (requires mizer 3.3.1 or later)</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"sizespectrum/mizerExtensionTemplate"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -235,7 +236,7 @@ For a metadata-only extension, delete <code>R/mizerExtensionTemplate-class.R</co
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>First Last <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0000-0000-0000" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>First Last <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-4092-8228" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 </ul>
 </div>
 

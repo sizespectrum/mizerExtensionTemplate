@@ -17,16 +17,16 @@ For the full conceptual background see:
 
 `mizerExtensionTemplate` adds three things to a standard mizer model:
 
-| Mechanism                                                                            | What it adds                                                                                                          | Where                                     |
-|--------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
-| [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.html) | Fixed allometric extra food                                                                                           | `constructor.R`                           |
-| [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.html)           | Fixed background mortality                                                                                            | `constructor.R`                           |
-| `projectEncounter` S3 method                                                         | Seasonal encounter multiplier                                                                                         | `rate-methods.R`                          |
-| `setComponent("plankton")`                                                           | Dynamical plankton spectrum                                                                                           | `constructor.R` + `component-functions.R` |
-| `getBiomass` S3 methods                                                              | Includes plankton in output                                                                                           | `generic-methods.R`                       |
-| Classed arrays with a `type`                                                         | [`planktonLevel()`](https://sizespectrum.org/mizerExtensionTemplate/reference/planktonLevel.md) plots as a proportion | `component-functions.R`                   |
-| [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.html)         | Reports a choice, obeying `info_level`                                                                                | `constructor.R`                           |
-| Bundled data object                                                                  | `example_params` ready to use                                                                                         | `data/`, `R/data.R`                       |
+| Mechanism | What it adds | Where |
+|----|----|----|
+| [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.html) | Fixed allometric extra food | `constructor.R` |
+| [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.html) | Fixed background mortality | `constructor.R` |
+| `projectEncounter` S3 method | Seasonal encounter multiplier | `rate-methods.R` |
+| `setComponent("plankton")` | Dynamical plankton spectrum | `constructor.R` + `component-functions.R` |
+| `getBiomass` S3 methods | Includes plankton in output | `generic-methods.R` |
+| Classed arrays with a `type` | [`planktonLevel()`](https://sizespectrum.org/mizerExtensionTemplate/reference/planktonLevel.md) plots as a proportion | `component-functions.R` |
+| [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.html) | Reports a choice, obeying `info_level` | `constructor.R` |
+| Bundled data object | `example_params` ready to use | `data/`, `R/data.R` |
 
 ## Bundled example model
 
@@ -38,6 +38,7 @@ R serialisation preserves its complete S3 class vector and extension
 metadata, so no `.onLoad` hook or active binding is needed:
 
 ``` r
+
 class(example_params)   # mizerExtensionTemplate, not plain MizerParams
 #> [1] "mizerExtensionTemplate" "MizerParams"
 getBiomass(example_params)  # Plankton entry is present
@@ -49,6 +50,7 @@ You can use it directly without calling
 [`newExtensionTemplateParams()`](https://sizespectrum.org/mizerExtensionTemplate/reference/newExtensionTemplateParams.md):
 
 ``` r
+
 sim <- project(example_params, t_max = 5)
 plotBiomass(sim)
 ```
@@ -56,11 +58,21 @@ plotBiomass(sim)
 ## Quick start (build your own)
 
 ``` r
+
 params <- newExtensionTemplateParams(NS_species_params)
 sim    <- project(params, t_max = 10)
 plotBiomass(sim)   # Plankton column appears automatically
 ```
 
+    #> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    #> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    #> ℹ No h provided for some species, so using age at maturity to calculate it.
+    #> ℹ Because you have n != p, the default value for `h` is not very good.
+    #> ℹ Because the age at maturity is not known, I need to fall back to using
+    #> von Bertalanffy parameters, where available.
+    #> ℹ Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
+    #> ℹ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
+    #> ℹ Setting the plankton capacity to half the resource capacity.
     #> Warning in plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label, :
     #> missing legend in params@linecolour, some groups won't be displayed
     #> Warning: Removed 11 rows containing missing values or values outside the scale range
@@ -75,7 +87,17 @@ at `t = 0.75`. With the default amplitude of 0.2 the encounter rate
 varies by ±20 % around its annual mean.
 
 ``` r
+
 params_s <- newExtensionTemplateParams(NS_species_params, season_amplitude = 0.4)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No h provided for some species, so using age at maturity to calculate it.
+#> ℹ Because you have n != p, the default value for `h` is not very good.
+#> ℹ Because the age at maturity is not known, I need to fall back to using
+#> von Bertalanffy parameters, where available.
+#> ℹ Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
+#> ℹ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
+#> ℹ Setting the plankton capacity to half the resource capacity.
 enc_t0   <- getEncounter(params_s, t = 0)    # multiplier = 1.0
 enc_t025 <- getEncounter(params_s, t = 0.25) # multiplier = 1.4
 range(enc_t025 / enc_t0, na.rm = TRUE)
@@ -107,6 +129,7 @@ At each time step:
     mortality on the plankton spectrum.
 
 ``` r
+
 plotDiet(params, species = "Cod")
 ```
 
@@ -134,6 +157,7 @@ mizer’s own
 [`resource_level()`](https://sizespectrum.org/mizer/reference/setResource.html):
 
 ``` r
+
 lev <- planktonLevel(params)
 attr(lev, "type")
 #> [1] "proportion"
@@ -144,6 +168,7 @@ instruction — the y axis runs from 0 to 1 rather than being fitted to
 the data:
 
 ``` r
+
 plot(planktonLevel(params))
 #> Warning: Removed 47 rows containing missing values or values outside the scale range
 #> (`geom_line()`).
@@ -163,7 +188,7 @@ foul of.
 When your extension makes a choice on the user’s behalf, report it
 through mizer’s own mechanism rather than with
 [`message()`](https://rdrr.io/r/base/message.html) or
-[`warning()`](https://rdrr.io/r/base/warning.html). A plain
+[`warning()`](https://rdrr.io/r/base/warning.html), because a plain
 [`message()`](https://rdrr.io/r/base/message.html) ignores `info_level`,
 is not collected with the other reports, and is swallowed on the
 `species_params<-()` path.
@@ -179,6 +204,7 @@ mizer’s, and obeys the same switch. This template defaults to
 `info_level = 0` to keep its examples quiet, so ask for the reports:
 
 ``` r
+
 params_loud <- newExtensionTemplateParams(NS_species_params, info_level = 3)
 #> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
 #> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
@@ -191,12 +217,13 @@ params_loud <- newExtensionTemplateParams(NS_species_params, info_level = 3)
 #> ℹ Setting the plankton capacity to half the resource capacity.
 ```
 
-The last line is the template’s own. `level` decides how much it takes
-to silence a report: ours is level 3, chatter that only the default
-shows, so `info_level = 1` keeps mizer’s important reports and drops
-ours.
+The last line is the template’s own. `info_level` decides how much it
+takes to silence a report: ours is level 3, chatter that only the
+default shows, so `info_level = 1` keeps mizer’s important reports and
+drops ours.
 
 ``` r
+
 params_terse <- newExtensionTemplateParams(NS_species_params, info_level = 1)
 #> Because you have n != p, the default value for `h` is not very good.
 ```
@@ -245,28 +272,36 @@ makes a user who passes their own collide with it.
 
 ## Checklist for dispatching extension authors
 
-- **No** `setClass()` or class declaration: the extension names are
-  entries in ordinary S3 class vectors managed by
-  [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html).
-- Constructor ends with
-  [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.html)
-  (including the package version and installation requirement) and
-  `coerceToExtensionClass(params)`.
-- Every bundled `MizerParams` or `MizerSim` object is created through
-  the extension’s setup function before it is saved in `data/`.
-- Every S3 method is registered via `@method` + `@export`.
-- Every S3 method calls
-  [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html).
-- Rate modifications use `project*` methods, not
-  [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.html).
-- Extension-specific state lives in `other_params(params)` or component
-  params — not in new top-level list elements.
-- Every array returned to the user is wrapped in a mizer array class
-  with an explicit `type` (`"value"`, `"density"` or `"proportion"`).
-- Anything you tell the user goes through
-  [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.html)
-  inside a
-  [`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.html),
-  never a bare [`message()`](https://rdrr.io/r/base/message.html) or
-  [`warning()`](https://rdrr.io/r/base/warning.html); entry points take
-  `info_level = default_info_level()` and forward it.
+**No** `setClass()` or class declaration: the extension names are
+entries in ordinary S3 class vectors managed by
+[`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html).
+
+Constructor ends with
+[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.html)
+(including the package version and installation requirement) and
+`coerceToExtensionClass(params)`.
+
+Every bundled `MizerParams` or `MizerSim` object is created through the
+extension’s setup function before it is saved in `data/`.
+
+Every S3 method is registered via `@method` + `@export`.
+
+Every S3 method calls
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html).
+
+Rate modifications use `project*` methods, not
+[`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.html).
+
+Extension-specific state lives in `other_params(params)` or component
+params — not in new top-level list elements.
+
+Every array returned to the user is wrapped in a mizer array class with
+an explicit `type` (`"value"`, `"density"` or `"proportion"`).
+
+Anything you tell the user goes through
+[`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.html)
+inside a
+[`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.html),
+never a bare [`message()`](https://rdrr.io/r/base/message.html) or
+[`warning()`](https://rdrr.io/r/base/warning.html); entry points take
+`info_level = default_info_level()` and forward it.

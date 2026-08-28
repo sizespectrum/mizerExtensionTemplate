@@ -12,16 +12,16 @@ for details.
 Every extension mechanism described in the mizer documentation is
 illustrated with working, commented code:
 
-| Mechanism                                                                                                                                                           | Where                                         | What the template adds                                                                                                                 |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
-| [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.html)                                                                                | `R/constructor.R`                             | Allometric extra food source                                                                                                           |
-| [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.html)                                                                                          | `R/constructor.R`                             | Size-dependent background mortality                                                                                                    |
-| `project*` S3 method                                                                                                                                                | `R/rate-methods.R`                            | Seasonal encounter multiplier                                                                                                          |
-| [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.html)                                                                                      | `R/constructor.R` + `R/component-functions.R` | Dynamical plankton spectrum                                                                                                            |
-| `getBiomass` S3 override                                                                                                                                            | `R/generic-methods.R`                         | Plankton biomass in output                                                                                                             |
-| Classed arrays with a `type`                                                                                                                                        | `R/component-functions.R`                     | [`planktonLevel()`](https://sizespectrum.org/mizerExtensionTemplate/reference/planktonLevel.md), a proportion that plots on a 0–1 axis |
-| [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.html) / [`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.html) | `R/constructor.R`                             | Reports a choice through mizer’s own `info_level` mechanism                                                                            |
-| Bundled data object                                                                                                                                                 | `data/` + `R/data.R`                          | `example_params` ready to use                                                                                                          |
+| Mechanism | Where | What the template adds |
+|----|----|----|
+| [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.html) | `R/constructor.R` | Allometric extra food source |
+| [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.html) | `R/constructor.R` | Size-dependent background mortality |
+| `project*` S3 method | `R/rate-methods.R` | Seasonal encounter multiplier |
+| [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.html) | `R/constructor.R` + `R/component-functions.R` | Dynamical plankton spectrum |
+| `getBiomass` S3 override | `R/generic-methods.R` | Plankton biomass in output |
+| Classed arrays with a `type` | `R/component-functions.R` | [`planktonLevel()`](https://sizespectrum.org/mizerExtensionTemplate/reference/planktonLevel.md), a proportion that plots on a 0–1 axis |
+| [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.html) / [`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.html) | `R/constructor.R` | Reports a choice through mizer’s own `info_level` mechanism |
+| Bundled data object | `data/` + `R/data.R` | `example_params` ready to use |
 
 The template also shows both kinds of extension package:
 
@@ -38,13 +38,15 @@ The template also shows both kinds of extension package:
 ## Installation
 
 ``` r
-# Install from GitHub (requires the development version of mizer)
+
+# Install from GitHub (requires mizer 3.3.1 or later)
 pak::pak("sizespectrum/mizerExtensionTemplate")
 ```
 
 ## Quick start
 
 ``` r
+
 library(mizerExtensionTemplate)
 
 # Use the bundled example model (already correctly classed):
@@ -96,6 +98,7 @@ plotBiomass(sim)   # includes a Plankton column
 6.  **Regenerate** the namespace and documentation:
 
     ``` r
+
     devtools::document()
     devtools::test()
     devtools::check()

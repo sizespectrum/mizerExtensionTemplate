@@ -37,6 +37,7 @@
       <ul class="navbar-nav me-auto">
 <li class="active nav-item"><a class="nav-link" href="../articles/mizerExtensionTemplate.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -189,7 +190,16 @@ needed:</p>
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newExtensionTemplateParams.html">newExtensionTemplateParams</a></span><span class="op">(</span><span class="va">NS_species_params</span><span class="op">)</span></span>
 <span><span class="va">sim</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://sizespectrum.org/mizer/reference/project.html" class="external-link">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://sizespectrum.org/mizer/reference/plotBiomass.html" class="external-link">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>   <span class="co"># Plankton column appears automatically</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; Warning in plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label, :</span></span>
+<pre><code><span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Because you have n != p, the default value for `h` is not very good.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Because the age at maturity is not known, I need to fall back to using</span></span>
+<span><span class="co">#&gt; von Bertalanffy parameters, where available.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Setting the plankton capacity to half the resource capacity.</span></span>
+<span><span class="co">#&gt; Warning in plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label, :</span></span>
 <span><span class="co">#&gt; missing legend in params@linecolour, some groups won't be displayed</span></span>
 <span><span class="co">#&gt; Warning: Removed 11 rows containing missing values or values outside the scale range</span></span>
 <span><span class="co">#&gt; (`geom_line()`).</span></span></code></pre>
@@ -203,6 +213,15 @@ and troughs at <code>t = 0.75</code>. With the default amplitude of 0.2
 the encounter rate varies by ±20 % around its annual mean.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newExtensionTemplateParams.html">newExtensionTemplateParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, season_amplitude <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Because you have n != p, the default value for `h` is not very good.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Because the age at maturity is not known, I need to fall back to using</span></span>
+<span><span class="co">#&gt; von Bertalanffy parameters, where available.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Setting the plankton capacity to half the resource capacity.</span></span>
 <span><span class="va">enc_t0</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://sizespectrum.org/mizer/reference/getEncounter.html" class="external-link">getEncounter</a></span><span class="op">(</span><span class="va">params_s</span>, t <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>    <span class="co"># multiplier = 1.0</span></span>
 <span><span class="va">enc_t025</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://sizespectrum.org/mizer/reference/getEncounter.html" class="external-link">getEncounter</a></span><span class="op">(</span><span class="va">params_s</span>, t <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span> <span class="co"># multiplier = 1.4</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">enc_t025</span> <span class="op">/</span> <span class="va">enc_t0</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -279,7 +298,7 @@ easy to fall foul of.</p>
 </h2>
 <p>When your extension makes a choice on the user’s behalf, report it
 through mizer’s own mechanism rather than with <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> or
-<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code>. A plain <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> ignores
+<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code>, because a plain <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> ignores
 <code>info_level</code>, is not collected with the other reports, and is
 swallowed on the <code>species_params&lt;-()</code> path.</p>
 <p>The constructor takes an <code>info_level</code> argument, forwards
@@ -300,9 +319,9 @@ quiet, so ask for the reports:</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Setting the plankton capacity to half the resource capacity.</span></span></code></pre></div>
-<p>The last line is the template’s own. <code>level</code> decides how
-much it takes to silence a report: ours is level 3, chatter that only
-the default shows, so <code>info_level = 1</code> keeps mizer’s
+<p>The last line is the template’s own. <code>info_level</code> decides
+how much it takes to silence a report: ours is level 3, chatter that
+only the default shows, so <code>info_level = 1</code> keeps mizer’s
 important reports and drops ours.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_terse</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newExtensionTemplateParams.html">newExtensionTemplateParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, info_level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
