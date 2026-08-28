@@ -18,12 +18,12 @@ with working, commented code:
 | `getBiomass` S3 override | `R/generic-methods.R` | Plankton biomass in output |
 | Classed arrays with a `type` | `R/component-functions.R` | `planktonLevel()`, a proportion that plots on a 0–1 axis |
 | `signal_info()` / `with_info_level()` | `R/constructor.R` | Reports a choice through mizer's own `info_level` mechanism |
-| Bundled data object | `data/` + `R/data.R` + `.onLoad` | `example_params` ready to use |
+| Bundled data object | `data/` + `R/data.R` | `example_params` ready to use |
 
 The template also shows both kinds of extension package:
 
 - **Dispatching** (like this template and
-  [mizerShelf](https://sizespectrum.org/mizerShelf/)): defines a marker S4
+  [mizerShelf](https://sizespectrum.org/mizerShelf/)): records an S3 extension
   class so mizer's generic functions dispatch to extension-specific methods via
   `NextMethod()`.
 - **Metadata-only** (like
@@ -34,7 +34,7 @@ The template also shows both kinds of extension package:
 ## Installation
 
 ```r
-# Install from GitHub (requires the development version of mizer)
+# Install from GitHub (requires mizer 3.3.1 or later)
 pak::pak("sizespectrum/mizerExtensionTemplate")
 ```
 
@@ -60,10 +60,9 @@ plotBiomass(sim)   # includes a Plankton column
 2. **Rename** `mizerExtensionTemplate` → your package name throughout:
    - `DESCRIPTION` (Package, Title, Description, URL, BugReports)
    - `R/mizerExtensionTemplate-class.R` — rename the file and the class names
-     it documents (there is no `setClass()` call to rename: mizer creates the
-     marker classes dynamically)
-   - `R/mizerExtensionTemplate-package.R` — update the `requirement` string
+     it documents (there is no class declaration to rename)
    - `R/constructor.R` — rename `newExtensionTemplateParams()`
+     and update the name and `requirement` passed to `recordExtension()`
    - `R/rate-methods.R` and `R/generic-methods.R` — rename all method
      suffixes
    - `tests/` and `vignettes/` — rename file names and internal references
@@ -71,14 +70,14 @@ plotBiomass(sim)   # includes a Plankton column
 3. **Decide: metadata-only or dispatching?**  
    For a metadata-only extension, delete `R/mizerExtensionTemplate-class.R`
    and drop the `coerceToExtensionClass()` call at the end of the constructor.
-   Keep `params@extensions <- getRegisteredExtensions()`.
+   Keep the `recordExtension()` call.
 
 4. **Replace the placeholder extension logic** with your own. Each mechanism
    in `R/constructor.R` is independent — delete the ones you don't need.
 
-5. **If you ship a bundled data object** in `data/`, add a `makeActiveBinding`
-   call to `.onLoad` (see `R/mizerExtensionTemplate-package.R`) so that users
-   always get a correctly classed object regardless of load order.
+5. **If you ship a bundled data object** in `data/`, create it with your setup
+   function and save it normally with `usethis::use_data()`. R preserves its
+   S3 class vector and extension metadata; no `.onLoad` hook is needed.
 
 6. **Regenerate** the namespace and documentation:
    ```r
@@ -92,7 +91,7 @@ plotBiomass(sim)   # includes a Plankton column
 - [Guide: Extending mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html) —
   all five extension mechanisms with worked examples.
 - [Guide: Creating a mizer extension package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html) —
-  the concepts behind marker classes, `NextMethod()` chaining, and composable
+  the concepts behind S3 extension classes, `NextMethod()` chaining, and composable
   extensions.
 - [Guide: Using mizer extension packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html) —
   the user's perspective on the extension chain.

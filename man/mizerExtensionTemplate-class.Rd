@@ -2,13 +2,14 @@
 % Please edit documentation in R/mizerExtensionTemplate-class.R
 \name{mizerExtensionTemplate-class}
 \alias{mizerExtensionTemplate-class}
-\title{mizerExtensionTemplate marker classes}
+\title{mizerExtensionTemplate extension classes}
 \description{
-S4 marker subclasses of \link[mizer:MizerParams]{MizerParams} and \link[mizer:MizerSim]{MizerSim} that enable S3
-dispatch for extension-specific methods defined in this package.
+S3 extension classes for \link[mizer:MizerParams]{MizerParams} and \link[mizer:MizerSim]{MizerSim} that enable dispatch
+to the methods defined in this package.
 }
 \details{
-These classes add no new slots. All extension-specific data lives in
+The class names are ordinary entries in the object's S3 class vector. All
+extension-specific data lives in
 \code{other_params(params)$mizerExtensionTemplate} and in the component
 parameters of the "plankton" component (see \code{\link[mizer:setComponent]{setComponent()}}).
 
@@ -17,16 +18,11 @@ Objects of class \code{mizerExtensionTemplate} are created by
 \code{mizerExtensionTemplateSim} are returned automatically by \code{\link[mizer:project]{project()}}
 when called on a \code{mizerExtensionTemplate} params object.
 
-Note that the classes are \strong{not} defined statically with \code{setClass()}.
-Instead mizer creates them when the package is loaded: \code{.onLoad()} calls
-\code{\link[mizer:registerExtension]{mizer::registerExtension()}}, which recognises this package as a dispatching
-extension from the S3 methods it registers for its marker class (for example
-\code{\link[=projectEncounter.mizerExtensionTemplate]{projectEncounter.mizerExtensionTemplate()}}) and inserts the class at the
-correct place in the S4 hierarchy relative to any other extension packages
-loaded in the same session. This is what lets independently developed
-extensions be chained in either load order. Defining the class statically as
-\code{contains = "MizerParams"} would instead fix it as a direct sibling of every
-other extension and, because the class would then be sealed, prevent mizer
-from re-parenting it into the chain.
+No class declaration is needed. \code{\link[=newExtensionTemplateParams]{newExtensionTemplateParams()}} records the
+extension on the object with \code{\link[mizer:recordExtension]{mizer::recordExtension()}} and then calls
+\code{\link[mizer:coerceToExtensionClass]{mizer::coerceToExtensionClass()}}. For example, the params class vector is
+\code{c("mizerExtensionTemplate", "MizerParams")}; simulations created by
+\code{\link[mizer:project]{project()}} receive
+\code{c("mizerExtensionTemplateSim", "MizerSim")} automatically.
 }
 \keyword{internal}

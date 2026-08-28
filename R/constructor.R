@@ -26,17 +26,12 @@
 #'
 #' This constructor creates a **dispatching** extension: the returned object
 #' has class `"mizerExtensionTemplate"` so that mizer's generic functions
-#' dispatch to the S3 methods defined in this package. The marker class is
-#' **not** defined statically with `setClass()`; mizer recognises this package
-#' as a dispatching extension from the S3 methods it registers (see
-#' `mizerExtensionTemplate-class`) and creates the class dynamically at load
-#' time, which is what allows it to be chained with other extensions. The
-#' [coerceToExtensionClass()] call at the end of this function then promotes
-#' the object to that class. For a **metadata-only** extension (one that does
-#' not override any generic and so registers no dispatch methods), you would
-#' omit the `coerceToExtensionClass()` call; you still call
-#' `params@extensions <- getRegisteredExtensions()` so the dependency is
-#' recorded.
+#' dispatch to the S3 methods defined in this package. No class declaration or
+#' load hook is needed. [recordExtension()] adds this extension to the object's
+#' own metadata, and [coerceToExtensionClass()] builds the ordinary S3 class
+#' vector from that record. For a **metadata-only** extension (one that does
+#' not override any generic), omit the `coerceToExtensionClass()` call but keep
+#' the `recordExtension()` call so the dependency remains reproducible.
 #'
 #' @param species_params A data frame of species parameters passed directly to
 #'   [mizer::newMultispeciesParams()].
@@ -104,7 +99,7 @@ newExtensionTemplateParams <- function(
     # size-dependent background mortality (scales as w^(-1/4)).
     #
     # For a metadata-only extension this might be all you need: set up the
-    # extra terms here and record params@extensions below.
+    # extra terms here and call recordExtension() below.
     # -------------------------------------------------------------------------
     if (extra_food_coef > 0) {
         extra_food <- outer(
@@ -179,27 +174,34 @@ newExtensionTemplateParams <- function(
     )
 
     # -------------------------------------------------------------------------
-    # Record the extension chain and promote the object to the S4 marker class.
+    # Record the extension and set the ordinary S3 class vector.
     #
     # Every constructor in a dispatching extension must end with these two
-    # lines, in this order:
+    # calls, in this order:
     #
-    #   params@extensions <- getRegisteredExtensions()
+    #   params <- recordExtension(params, "mizerExtensionTemplate", ...)
     #   params <- coerceToExtensionClass(params)
     #
-    # getRegisteredExtensions() returns the chain that all loaded .onLoad
-    # hooks have built up. Storing it in params stamps the object with a
-    # bill of materials so mizer can warn if a required package is missing
-    # when the object is later loaded from disk.
+    # recordExtension() prepends this extension to the chain already recorded
+    # on this particular object. Its requirement lets mizer install the package
+    # when a saved model is opened, and its version stamp says which object
+    # layout this constructor created. Extensions that merely happen to be
+    # loaded are not added.
     #
-    # coerceToExtensionClass() promotes params from plain MizerParams to
-    # mizerExtensionTemplate so that S3 dispatch finds the methods defined in
-    # this package. This step cannot be replaced with class(params) <- ...,
-    # because MizerParams is a formal S4 class.
+    # coerceToExtensionClass() reads that recorded chain and sets class(params)
+    # to c("mizerExtensionTemplate", "MizerParams"), allowing NextMethod()
+    # chains to compose with any extensions already recorded on the object.
     #
-    # For a metadata-only extension, keep the first line and drop the second.
+    # For a metadata-only extension, keep recordExtension() and drop coercion.
     # -------------------------------------------------------------------------
-    params@extensions <- getRegisteredExtensions()
+    params <- recordExtension(
+        params,
+        "mizerExtensionTemplate",
+        version = as.character(
+            utils::packageVersion("mizerExtensionTemplate")
+        ),
+        requirement = "sizespectrum/mizerExtensionTemplate"
+    )
     params <- coerceToExtensionClass(params)
     params
 

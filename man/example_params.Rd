@@ -5,8 +5,8 @@
 \alias{example_params}
 \title{Example MizerParams object for the extension template}
 \format{
-A \link[=mizerExtensionTemplate-class]{mizerExtensionTemplate} object (an S4 subclass of
-\link[mizer:MizerParams-class]{mizer::MizerParams}) with 3 species and a plankton component.
+A \link[=mizerExtensionTemplate-class]{mizerExtensionTemplate} object with 3 species and a
+plankton component.
 }
 \source{
 Created by \code{data-raw/example_params.R}.
@@ -23,16 +23,14 @@ allometric background mortality, a dynamical plankton component, and an
 overridden \code{\link[=getBiomass]{getBiomass()}} generic.
 }
 \details{
-Because the object is stored in the package's \verb{data/} directory it is
-lazy-loaded by R. The package's \code{.onLoad} hook replaces the plain binding
-with an active binding so that every access to \code{example_params} calls
-\code{\link[mizer:coerceToExtensionClass]{mizer::coerceToExtensionClass()}} and returns an object with the correct
-S4 extension class for the extension chain that is currently registered in
-the session.
+The object was created with \code{\link[=newExtensionTemplateParams]{newExtensionTemplateParams()}} and is stored in
+the package's \verb{data/} directory. R's standard lazy-loading preserves its S3
+class vector and extension metadata, so no load hook or active binding is
+needed.
 }
 \seealso{
 \code{\link[=newExtensionTemplateParams]{newExtensionTemplateParams()}} for the constructor used to build
 this object, \code{\link[=getBiomass.mizerExtensionTemplate]{getBiomass.mizerExtensionTemplate()}} for the overridden
-generic, \link[=mizerExtensionTemplate-class]{mizerExtensionTemplate} for the S4 class definition.
+generic, \link[=mizerExtensionTemplate-class]{mizerExtensionTemplate} for the S3 extension classes.
 }
 \keyword{datasets}

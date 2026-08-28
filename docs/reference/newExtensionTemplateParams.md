@@ -109,19 +109,18 @@ A `MizerParams` object of class `"mizerExtensionTemplate"`.
 
 This constructor creates a **dispatching** extension: the returned
 object has class `"mizerExtensionTemplate"` so that mizer's generic
-functions dispatch to the S3 methods defined in this package. The marker
-class is **not** defined statically with `setClass()`; mizer recognises
-this package as a dispatching extension from the S3 methods it registers
-(see `mizerExtensionTemplate-class`) and creates the class dynamically
-at load time, which is what allows it to be chained with other
-extensions. The
+functions dispatch to the S3 methods defined in this package. No class
+declaration or load hook is needed.
+[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.html)
+adds this extension to the object's own metadata, and
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html)
-call at the end of this function then promotes the object to that class.
-For a **metadata-only** extension (one that does not override any
-generic and so registers no dispatch methods), you would omit the
+builds the ordinary S3 class vector from that record. For a
+**metadata-only** extension (one that does not override any generic),
+omit the
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html)
-call; you still call `params@extensions <- getRegisteredExtensions()` so
-the dependency is recorded.
+call but keep the
+[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.html)
+call so the dependency remains reproducible.
 
 ## See also
 

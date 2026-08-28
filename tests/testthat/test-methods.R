@@ -33,8 +33,11 @@ test_that("getBiomass includes Plankton entry for MizerParams", {
 test_that("project() returns a mizerExtensionTemplateSim", {
   params <- newExtensionTemplateParams(NS_species_params)
   sim <- project(params, t_max = 1, t_save = 1)
-  expect_s4_class(sim, "mizerExtensionTemplateSim")
-  expect_true(methods::is(sim, "MizerSim"))
+  expect_s3_class(sim, "mizerExtensionTemplateSim")
+  expect_true(inherits(sim, "MizerSim"))
+  expect_identical(class(sim),
+                   c("mizerExtensionTemplateSim", "MizerSim"))
+  expect_false(isS4(sim))
 })
 
 test_that("getBiomass includes Plankton column for MizerSim", {

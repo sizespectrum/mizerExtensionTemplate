@@ -19,9 +19,7 @@ example_params
 
 A
 [mizerExtensionTemplate](https://sizespectrum.org/mizerExtensionTemplate/reference/mizerExtensionTemplate-class.md)
-object (an S4 subclass of
-[mizer::MizerParams](https://sizespectrum.org/mizer/reference/MizerParams-class.html))
-with 3 species and a plankton component.
+object with 3 species and a plankton component.
 
 ## Source
 
@@ -29,13 +27,11 @@ Created by `data-raw/example_params.R`.
 
 ## Details
 
-Because the object is stored in the package's `data/` directory it is
-lazy-loaded by R. The package's `.onLoad` hook replaces the plain
-binding with an active binding so that every access to `example_params`
-calls
-[`mizer::coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html)
-and returns an object with the correct S4 extension class for the
-extension chain that is currently registered in the session.
+The object was created with
+[`newExtensionTemplateParams()`](https://sizespectrum.org/mizerExtensionTemplate/reference/newExtensionTemplateParams.md)
+and is stored in the package's `data/` directory. R's standard
+lazy-loading preserves its S3 class vector and extension metadata, so no
+load hook or active binding is needed.
 
 ## See also
 
@@ -44,4 +40,4 @@ for the constructor used to build this object,
 [`getBiomass.mizerExtensionTemplate()`](https://sizespectrum.org/mizerExtensionTemplate/reference/getBiomass.md)
 for the overridden generic,
 [mizerExtensionTemplate](https://sizespectrum.org/mizerExtensionTemplate/reference/mizerExtensionTemplate-class.md)
-for the S4 class definition.
+for the S3 extension classes.
