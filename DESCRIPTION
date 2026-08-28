@@ -3,7 +3,7 @@ Title: Template for mizer Extension Packages
 Version: 0.2.0
 Authors@R:
     person("First", "Last", email = "author@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0000-0000-0000"))
+           comment = c(ORCID = "0000-0003-4092-8228"))
 Description: A template that demonstrates all extension mechanisms available in
     mizer. Use it as a starting point for your own mizer extension package.
     The template illustrates metadata-only and dispatching extensions, external

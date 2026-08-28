@@ -18,11 +18,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: First Last \email{author@example.com} (\href{https://orcid.org/0000-0000-0000-0000}{ORCID})
+\strong{Maintainer}: First Last \email{author@example.com} (\href{https://orcid.org/0000-0003-4092-8228}{ORCID})
 
 Authors:
 \itemize{
-  \item First Last \email{author@example.com} (\href{https://orcid.org/0000-0000-0000-0000}{ORCID})
+  \item First Last \email{author@example.com} (\href{https://orcid.org/0000-0003-4092-8228}{ORCID})
 }
 
 }
