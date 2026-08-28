@@ -152,7 +152,7 @@ backwards compatibility and is easy to fall foul of.
 # Telling the user what your extension decided
 
 When your extension makes a choice on the user's behalf, report it through
-mizer's own mechanism rather than with `message()` or `warning()`. A plain
+mizer's own mechanism rather than with `message()` or `warning()`, because a plain
 `message()` ignores `info_level`, is not collected with the other reports, and is
 swallowed on the `species_params<-()` path.
 
@@ -166,7 +166,7 @@ defaults to `info_level = 0` to keep its examples quiet, so ask for the reports:
 params_loud <- newExtensionTemplateParams(NS_species_params, info_level = 3)
 ```
 
-The last line is the template's own. `level` decides how much it takes to
+The last line is the template's own. `info_level` decides how much it takes to
 silence a report: ours is level 3, chatter that only the default shows, so
 `info_level = 1` keeps mizer's important reports and drops ours.
 
