@@ -61,7 +61,9 @@ test_that("season_amplitude is stored in other_params", {
 })
 
 test_that("the constructor reports its own choices through info_level", {
-    # The template defaults to info_level = 0 to keep its examples quiet.
+    # The default follows the global mizer_info_level option.
+    old_options <- options(mizer_info_level = 0)
+    on.exit(options(old_options), add = TRUE)
     expect_silent(newExtensionTemplateParams(NS_species_params))
 
     # Reports are collected and given together when the call finishes, so match

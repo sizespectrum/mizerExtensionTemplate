@@ -159,25 +159,26 @@ swallowed on the `species_params<-()` path.
 The constructor takes an `info_level` argument, forwards it to
 `newMultispeciesParams()`, wraps its body in `with_info_level()` and raises one
 report of its own with `signal_info()`. The result is that the template's report
-arrives in the same block as mizer's, and obeys the same switch. This template
-defaults to `info_level = 0` to keep its examples quiet, so ask for the reports:
+arrives in the same block as mizer's, and obeys the same switch. The constructor
+defaults to `default_info_level()`, so it follows the global `mizer_info_level`
+option. Ask explicitly for all reports when you need deterministic output:
 
 ```{r info-level}
 params_loud <- newExtensionTemplateParams(NS_species_params, info_level = 3)
 ```
 
 The last line is the template's own. `info_level` decides how much it takes to
-silence a report: ours is level 3, chatter that only the default shows, so
+silence a report: ours is level 3, so
 `info_level = 1` keeps mizer's important reports and drops ours.
 
 ```{r info-level-1}
 params_terse <- newExtensionTemplateParams(NS_species_params, info_level = 1)
 ```
 
-In your own constructor, default the argument to `default_info_level()` instead,
-so it follows the `mizer_info_level` option as mizer's own constructors do. Take
-the argument explicitly either way: hard-coding `info_level` in the call to
-`newMultispeciesParams()` makes a user who passes their own collide with it.
+Keep this pattern in your own constructor: default the argument to
+`default_info_level()` and forward it explicitly. Hard-coding `info_level` in
+the call to `newMultispeciesParams()` makes a user who passes their own collide
+with it.
 
 # Adapting this template for your extension
 

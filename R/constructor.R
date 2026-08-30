@@ -45,13 +45,12 @@
 #' @param plankton_rate Intrinsic growth rate of the plankton component
 #'   (yr⁻¹). Higher values make the plankton respond faster to depletion.
 #' @param info_level How much [mizer::newMultispeciesParams()] should say about
-#'   the defaults it fills in, forwarded unchanged. This template defaults to
-#'   `0` only to keep its own examples quiet; your own constructor will usually
-#'   want `info_level = default_info_level()`, mizer's exported default, so that
-#'   it follows the `mizer_info_level` option as mizer's own constructors do.
-#'   Either way, take the argument *explicitly* rather than
-#'   hard-coding a value in the call, or a user passing `info_level` would hit
-#'   "formal argument \"info_level\" matched by multiple actual arguments".
+#'   the defaults it fills in, forwarded unchanged. It defaults to
+#'   [mizer::default_info_level()], so it follows the `mizer_info_level` option
+#'   in the same way as mizer's own constructors. Take the argument
+#'   *explicitly* rather than hard-coding a value in the call, or a user passing
+#'   `info_level` would hit "formal argument \"info_level\" matched by multiple
+#'   actual arguments".
 #' @param ... Additional arguments passed to [mizer::newMultispeciesParams()].
 #'
 #' @return A `MizerParams` object of class `"mizerExtensionTemplate"`.
@@ -147,7 +146,7 @@ newExtensionTemplateParams <- function(
     # A choice made on the user's behalf, so we say so. `var` names the quantity
     # the report is about, and `level` says how important it is: level 1 survives
     # `info_level = 1`, level 3 is chatter that only the default shows. This is
-    # chatter, so level 3.
+    # chatter, so it is shown only at info_level >= 3.
     #
     # Two further arguments matter when your own report is not routine:
     #   severity = "warning" for something the user asked for that is not
@@ -172,6 +171,12 @@ newExtensionTemplateParams <- function(
         component_params = plankton_params,
         colour         = "forestgreen"
     )
+
+    # setComponent() registers plotting metadata under the component's
+    # internal name, "plankton". The getBiomass() methods use the display name
+    # "Plankton", so that name needs matching metadata for plotBiomass().
+    params <- setColours(params, c(Plankton = "forestgreen"))
+    params <- setLinetypes(params, c(Plankton = "solid"))
 
     # -------------------------------------------------------------------------
     # Record the extension and set the ordinary S3 class vector.

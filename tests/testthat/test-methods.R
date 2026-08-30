@@ -48,6 +48,14 @@ test_that("getBiomass includes Plankton column for MizerSim", {
   expect_true(all(b[, "Plankton"] > 0))
 })
 
+test_that("plotBiomass displays Plankton without a missing-legend warning", {
+  params <- newExtensionTemplateParams(NS_species_params)
+  sim    <- project(params, t_max = 2, t_save = 1)
+
+  expect_no_warning(plot_data <- plotBiomass(sim, return_data = TRUE))
+  expect_true("Plankton" %in% plot_data$Legend)
+})
+
 test_that("planktonDynamics preserves non-negativity after projection", {
   params <- newExtensionTemplateParams(NS_species_params)
   sim    <- project(params, t_max = 5, t_save = 1)

@@ -32,13 +32,12 @@ added via \code{setExtEncounter()}. Set to \code{0} to disable.}
 (yr⁻¹). Higher values make the plankton respond faster to depletion.}
 
 \item{info_level}{How much \code{\link[mizer:newMultispeciesParams]{mizer::newMultispeciesParams()}} should say about
-the defaults it fills in, forwarded unchanged. This template defaults to
-\code{0} only to keep its own examples quiet; your own constructor will usually
-want \code{info_level = default_info_level()}, mizer's exported default, so that
-it follows the \code{mizer_info_level} option as mizer's own constructors do.
-Either way, take the argument \emph{explicitly} rather than
-hard-coding a value in the call, or a user passing \code{info_level} would hit
-"formal argument \"info_level\" matched by multiple actual arguments".}
+the defaults it fills in, forwarded unchanged. It defaults to
+\code{\link[mizer:default_info_level]{mizer::default_info_level()}}, so it follows the \code{mizer_info_level} option
+in the same way as mizer's own constructors. Take the argument
+\emph{explicitly} rather than hard-coding a value in the call, or a user passing
+\code{info_level} would hit "formal argument \"info_level\" matched by multiple
+actual arguments".}
 
 \item{...}{Additional arguments passed to \code{\link[mizer:newMultispeciesParams]{mizer::newMultispeciesParams()}}.}
 }
