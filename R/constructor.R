@@ -26,17 +26,12 @@
 #'
 #' This constructor creates a **dispatching** extension: the returned object
 #' has class `"mizerExtensionTemplate"` so that mizer's generic functions
-#' dispatch to the S3 methods defined in this package. The marker class is
-#' **not** defined statically with `setClass()`; mizer recognises this package
-#' as a dispatching extension from the S3 methods it registers (see
-#' `mizerExtensionTemplate-class`) and creates the class dynamically at load
-#' time, which is what allows it to be chained with other extensions. The
-#' [coerceToExtensionClass()] call at the end of this function then promotes
-#' the object to that class. For a **metadata-only** extension (one that does
-#' not override any generic and so registers no dispatch methods), you would
-#' omit the `coerceToExtensionClass()` call; you still call
-#' `params@extensions <- getRegisteredExtensions()` so the dependency is
-#' recorded.
+#' dispatch to the S3 methods defined in this package. No class declaration or
+#' load hook is needed. [recordExtension()] adds this extension to the object's
+#' own metadata, and [coerceToExtensionClass()] builds the ordinary S3 class
+#' vector from that record. For a **metadata-only** extension (one that does
+#' not override any generic), omit the `coerceToExtensionClass()` call but keep
+#' the `recordExtension()` call so the dependency remains reproducible.
 #'
 #' @param species_params A data frame of species parameters passed directly to
 #'   [mizer::newMultispeciesParams()].
@@ -50,13 +45,12 @@
 #' @param plankton_rate Intrinsic growth rate of the plankton component
 #'   (yr⁻¹). Higher values make the plankton respond faster to depletion.
 #' @param info_level How much [mizer::newMultispeciesParams()] should say about
-#'   the defaults it fills in, forwarded unchanged. This template defaults to
-#'   `0` only to keep its own examples quiet; your own constructor will usually
-#'   want `info_level = default_info_level()`, mizer's exported default, so that
-#'   it follows the `mizer_info_level` option as mizer's own constructors do.
-#'   Either way, take the argument *explicitly* rather than
-#'   hard-coding a value in the call, or a user passing `info_level` would hit
-#'   "formal argument \"info_level\" matched by multiple actual arguments".
+#'   the defaults it fills in, forwarded unchanged. It defaults to
+#'   [mizer::default_info_level()], so it follows the `mizer_info_level` option
+#'   in the same way as mizer's own constructors. Take the argument
+#'   *explicitly* rather than hard-coding a value in the call, or a user passing
+#'   `info_level` would hit "formal argument \"info_level\" matched by multiple
+#'   actual arguments".
 #' @param ... Additional arguments passed to [mizer::newMultispeciesParams()].
 #'
 #' @return A `MizerParams` object of class `"mizerExtensionTemplate"`.
@@ -70,7 +64,7 @@ newExtensionTemplateParams <- function(
         extra_food_coef     = 0.1,
         background_mort_coef = 0.05,
         plankton_rate       = 0.5,
-        info_level          = 0,
+        info_level          = default_info_level(),
         ...) {
 
     # -------------------------------------------------------------------------
@@ -104,7 +98,7 @@ newExtensionTemplateParams <- function(
     # size-dependent background mortality (scales as w^(-1/4)).
     #
     # For a metadata-only extension this might be all you need: set up the
-    # extra terms here and record params@extensions below.
+    # extra terms here and call recordExtension() below.
     # -------------------------------------------------------------------------
     if (extra_food_coef > 0) {
         extra_food <- outer(
@@ -152,7 +146,7 @@ newExtensionTemplateParams <- function(
     # A choice made on the user's behalf, so we say so. `var` names the quantity
     # the report is about, and `level` says how important it is: level 1 survives
     # `info_level = 1`, level 3 is chatter that only the default shows. This is
-    # chatter, so level 3.
+    # chatter, so it is shown only at info_level >= 3.
     #
     # Two further arguments matter when your own report is not routine:
     #   severity = "warning" for something the user asked for that is not
@@ -178,28 +172,41 @@ newExtensionTemplateParams <- function(
         colour         = "forestgreen"
     )
 
+    # setComponent() registers plotting metadata under the component's
+    # internal name, "plankton". The getBiomass() methods use the display name
+    # "Plankton", so that name needs matching metadata for plotBiomass().
+    params <- setColours(params, c(Plankton = "forestgreen"))
+    params <- setLinetypes(params, c(Plankton = "solid"))
+
     # -------------------------------------------------------------------------
-    # Record the extension chain and promote the object to the S4 marker class.
+    # Record the extension and set the ordinary S3 class vector.
     #
     # Every constructor in a dispatching extension must end with these two
-    # lines, in this order:
+    # calls, in this order:
     #
-    #   params@extensions <- getRegisteredExtensions()
+    #   params <- recordExtension(params, "mizerExtensionTemplate", ...)
     #   params <- coerceToExtensionClass(params)
     #
-    # getRegisteredExtensions() returns the chain that all loaded .onLoad
-    # hooks have built up. Storing it in params stamps the object with a
-    # bill of materials so mizer can warn if a required package is missing
-    # when the object is later loaded from disk.
+    # recordExtension() prepends this extension to the chain already recorded
+    # on this particular object. Its requirement lets mizer install the package
+    # when a saved model is opened, and its version stamp says which object
+    # layout this constructor created. Extensions that merely happen to be
+    # loaded are not added.
     #
-    # coerceToExtensionClass() promotes params from plain MizerParams to
-    # mizerExtensionTemplate so that S3 dispatch finds the methods defined in
-    # this package. This step cannot be replaced with class(params) <- ...,
-    # because MizerParams is a formal S4 class.
+    # coerceToExtensionClass() reads that recorded chain and sets class(params)
+    # to c("mizerExtensionTemplate", "MizerParams"), allowing NextMethod()
+    # chains to compose with any extensions already recorded on the object.
     #
-    # For a metadata-only extension, keep the first line and drop the second.
+    # For a metadata-only extension, keep recordExtension() and drop coercion.
     # -------------------------------------------------------------------------
-    params@extensions <- getRegisteredExtensions()
+    params <- recordExtension(
+        params,
+        "mizerExtensionTemplate",
+        version = as.character(
+            utils::packageVersion("mizerExtensionTemplate")
+        ),
+        requirement = "sizespectrum/mizerExtensionTemplate"
+    )
     params <- coerceToExtensionClass(params)
     params
 

@@ -8,10 +8,10 @@ is being done and *why*. Read the source files alongside this vignette.
 
 For the full conceptual background see:
 
-- `vignette("guide-extend-mizer", package = "mizer")` — all five
-  extension mechanisms with worked examples.
-- `vignette("guide-create-extension-package", package = "mizer")` —
-  turning a script into a composable, shareable package.
+- [`vignette("guide-extend-mizer", package = "mizer")`](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html)
+  — all five extension mechanisms with worked examples.
+- [`vignette("guide-create-extension-package", package = "mizer")`](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html)
+  — turning a script into a composable, shareable package.
 
 ## The extension at a glance
 
@@ -26,23 +26,21 @@ For the full conceptual background see:
 | `getBiomass` S3 methods | Includes plankton in output | `generic-methods.R` |
 | Classed arrays with a `type` | [`planktonLevel()`](https://sizespectrum.org/mizerExtensionTemplate/reference/planktonLevel.md) plots as a proportion | `component-functions.R` |
 | [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.html) | Reports a choice, obeying `info_level` | `constructor.R` |
-| Bundled data object | `example_params` ready to use | `data/`, `R/data.R`, `.onLoad` |
+| Bundled data object | `example_params` ready to use | `data/`, `R/data.R` |
 
 ## Bundled example model
 
 The package ships a ready-made `example_params` object — a three-species
 (Sprat, Herring, Cod) model built with
 [`newExtensionTemplateParams()`](https://sizespectrum.org/mizerExtensionTemplate/reference/newExtensionTemplateParams.md).
-It is stored in `data/example_params.rda` and lazy-loaded by R, but the
-`.onLoad` hook replaces the plain binding with an active binding so that
-every access returns an object with the correct S4 extension class:
+It is stored in `data/example_params.rda` and lazy-loaded by R. Standard
+R serialisation preserves its complete S3 class vector and extension
+metadata, so no `.onLoad` hook or active binding is needed:
 
 ``` r
 
 class(example_params)   # mizerExtensionTemplate, not plain MizerParams
-#> [1] "mizerExtensionTemplate"
-#> attr(,"package")
-#> [1] "mizerExtensionTemplate"
+#> [1] "mizerExtensionTemplate" "MizerParams"
 getBiomass(example_params)  # Plankton entry is present
 #>        Sprat      Herring          Cod     Plankton 
 #> 1.630305e+08 9.125316e+07 1.494402e+08 2.673020e+12
@@ -66,6 +64,15 @@ sim    <- project(params, t_max = 10)
 plotBiomass(sim)   # Plankton column appears automatically
 ```
 
+    #> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    #> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    #> ℹ No h provided for some species, so using age at maturity to calculate it.
+    #> ℹ Because you have n != p, the default value for `h` is not very good.
+    #> ℹ Because the age at maturity is not known, I need to fall back to using
+    #> von Bertalanffy parameters, where available.
+    #> ℹ Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
+    #> ℹ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
+    #> ℹ Setting the plankton capacity to half the resource capacity.
     #> Warning in plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label, :
     #> missing legend in params@linecolour, some groups won't be displayed
     #> Warning: Removed 11 rows containing missing values or values outside the scale range
@@ -82,6 +89,15 @@ varies by ±20 % around its annual mean.
 ``` r
 
 params_s <- newExtensionTemplateParams(NS_species_params, season_amplitude = 0.4)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No h provided for some species, so using age at maturity to calculate it.
+#> ℹ Because you have n != p, the default value for `h` is not very good.
+#> ℹ Because the age at maturity is not known, I need to fall back to using
+#> von Bertalanffy parameters, where available.
+#> ℹ Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
+#> ℹ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
+#> ℹ Setting the plankton capacity to half the resource capacity.
 enc_t0   <- getEncounter(params_s, t = 0)    # multiplier = 1.0
 enc_t025 <- getEncounter(params_s, t = 0.25) # multiplier = 1.4
 range(enc_t025 / enc_t0, na.rm = TRUE)
@@ -172,7 +188,7 @@ foul of.
 When your extension makes a choice on the user’s behalf, report it
 through mizer’s own mechanism rather than with
 [`message()`](https://rdrr.io/r/base/message.html) or
-[`warning()`](https://rdrr.io/r/base/warning.html). A plain
+[`warning()`](https://rdrr.io/r/base/warning.html), because a plain
 [`message()`](https://rdrr.io/r/base/message.html) ignores `info_level`,
 is not collected with the other reports, and is swallowed on the
 `species_params<-()` path.
@@ -190,19 +206,21 @@ mizer’s, and obeys the same switch. This template defaults to
 ``` r
 
 params_loud <- newExtensionTemplateParams(NS_species_params, info_level = 3)
-#> No h provided for some species, so using age at maturity to calculate it.
-#> Because you have n != p, the default value for `h` is not very good.
-#> Because the age at maturity is not known, I need to fall back to using
-#> von Bertalanffy parameters, where available, and this is not reliable.
-#> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
-#> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
-#> Setting the plankton capacity to half the resource capacity.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No h provided for some species, so using age at maturity to calculate it.
+#> ℹ Because you have n != p, the default value for `h` is not very good.
+#> ℹ Because the age at maturity is not known, I need to fall back to using
+#> von Bertalanffy parameters, where available.
+#> ℹ Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
+#> ℹ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
+#> ℹ Setting the plankton capacity to half the resource capacity.
 ```
 
-The last line is the template’s own. `level` decides how much it takes
-to silence a report: ours is level 3, chatter that only the default
-shows, so `info_level = 1` keeps mizer’s important reports and drops
-ours.
+The last line is the template’s own. `info_level` decides how much it
+takes to silence a report: ours is level 3, chatter that only the
+default shows, so `info_level = 1` keeps mizer’s important reports and
+drops ours.
 
 ``` r
 
@@ -229,8 +247,9 @@ makes a user who passes their own collide with it.
     - *Metadata-only* (like `mizerStarvation`): delete
       `mizerExtensionTemplate-class.R` and remove the
       [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html)
-      call at the end of the constructor. Keep
-      `params@extensions <- getRegisteredExtensions()`.
+      call at the end of the constructor. Keep the
+      [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.html)
+      call.
     - *Dispatching* (like `mizerShelf`): keep everything and define S3
       methods for the generics you need to override.
 
@@ -253,18 +272,17 @@ makes a user who passes their own collide with it.
 
 ## Checklist for dispatching extension authors
 
-**No** static `setClass()` for the marker classes: mizer creates
-`<myExt>` and `<myExt>Sim` dynamically from the S3 methods you register,
-so that your extension can be chained with others in either load order.
+**No** `setClass()` or class declaration: the extension names are
+entries in ordinary S3 class vectors managed by
+[`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html).
 
-`mizer::registerExtension(pkgname, requirement = ...)` in `.onLoad`.
+Constructor ends with
+[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.html)
+(including the package version and installation requirement) and
+`coerceToExtensionClass(params)`.
 
-Constructor ends with `params@extensions <- getRegisteredExtensions()`
-and `coerceToExtensionClass(params)`.
-
-For every `MizerParams` or `MizerSim` object bundled in `data/`, add a
-`makeActiveBinding` call in `.onLoad` (see
-`mizerExtensionTemplate-package.R`).
+Every bundled `MizerParams` or `MizerSim` object is created through the
+extension’s setup function before it is saved in `data/`.
 
 Every S3 method is registered via `@method` + `@export`.
 
@@ -275,7 +293,7 @@ Rate modifications use `project*` methods, not
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.html).
 
 Extension-specific state lives in `other_params(params)` or component
-params — not in new S4 slots.
+params — not in new top-level list elements.
 
 Every array returned to the user is wrapped in a mizer array class with
 an explicit `type` (`"value"`, `"density"` or `"proportion"`).

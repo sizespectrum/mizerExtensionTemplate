@@ -7,17 +7,15 @@
 #' allometric background mortality, a dynamical plankton component, and an
 #' overridden [getBiomass()] generic.
 #'
-#' Because the object is stored in the package's `data/` directory it is
-#' lazy-loaded by R. The package's `.onLoad` hook replaces the plain binding
-#' with an active binding so that every access to `example_params` calls
-#' [mizer::coerceToExtensionClass()] and returns an object with the correct
-#' S4 extension class for the extension chain that is currently registered in
-#' the session.
+#' The object was created with [newExtensionTemplateParams()] and is stored in
+#' the package's `data/` directory. R's standard lazy-loading preserves its S3
+#' class vector and extension metadata, so no load hook or active binding is
+#' needed.
 #'
-#' @format A [mizerExtensionTemplate-class] object (an S4 subclass of
-#'   [mizer::MizerParams-class]) with 3 species and a plankton component.
+#' @format A [mizerExtensionTemplate-class] object with 3 species and a
+#'   plankton component.
 #' @seealso [newExtensionTemplateParams()] for the constructor used to build
 #'   this object, [getBiomass.mizerExtensionTemplate()] for the overridden
-#'   generic, [mizerExtensionTemplate-class] for the S4 class definition.
+#'   generic, [mizerExtensionTemplate-class] for the S3 extension classes.
 #' @source Created by `data-raw/example_params.R`.
 "example_params"

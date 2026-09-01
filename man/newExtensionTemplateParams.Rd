@@ -10,7 +10,7 @@ newExtensionTemplateParams(
   extra_food_coef = 0.1,
   background_mort_coef = 0.05,
   plankton_rate = 0.5,
-  info_level = 0,
+  info_level = default_info_level(),
   ...
 )
 }
@@ -32,13 +32,12 @@ added via \code{setExtEncounter()}. Set to \code{0} to disable.}
 (yr⁻¹). Higher values make the plankton respond faster to depletion.}
 
 \item{info_level}{How much \code{\link[mizer:newMultispeciesParams]{mizer::newMultispeciesParams()}} should say about
-the defaults it fills in, forwarded unchanged. This template defaults to
-\code{0} only to keep its own examples quiet; your own constructor will usually
-want \code{info_level = default_info_level()}, mizer's exported default, so that
-it follows the \code{mizer_info_level} option as mizer's own constructors do.
-Either way, take the argument \emph{explicitly} rather than
-hard-coding a value in the call, or a user passing \code{info_level} would hit
-"formal argument \"info_level\" matched by multiple actual arguments".}
+the defaults it fills in, forwarded unchanged. It defaults to
+\code{\link[mizer:default_info_level]{mizer::default_info_level()}}, so it follows the \code{mizer_info_level} option
+in the same way as mizer's own constructors. Take the argument
+\emph{explicitly} rather than hard-coding a value in the call, or a user passing
+\code{info_level} would hit "formal argument \"info_level\" matched by multiple
+actual arguments".}
 
 \item{...}{Additional arguments passed to \code{\link[mizer:newMultispeciesParams]{mizer::newMultispeciesParams()}}.}
 }
@@ -75,17 +74,12 @@ mizer says. See the block at the end of this function.
 
 This constructor creates a \strong{dispatching} extension: the returned object
 has class \code{"mizerExtensionTemplate"} so that mizer's generic functions
-dispatch to the S3 methods defined in this package. The marker class is
-\strong{not} defined statically with \code{setClass()}; mizer recognises this package
-as a dispatching extension from the S3 methods it registers (see
-\code{mizerExtensionTemplate-class}) and creates the class dynamically at load
-time, which is what allows it to be chained with other extensions. The
-\code{\link[mizer:coerceToExtensionClass]{coerceToExtensionClass()}} call at the end of this function then promotes
-the object to that class. For a \strong{metadata-only} extension (one that does
-not override any generic and so registers no dispatch methods), you would
-omit the \code{coerceToExtensionClass()} call; you still call
-\code{params@extensions <- getRegisteredExtensions()} so the dependency is
-recorded.
+dispatch to the S3 methods defined in this package. No class declaration or
+load hook is needed. \code{\link[mizer:recordExtension]{recordExtension()}} adds this extension to the object's
+own metadata, and \code{\link[mizer:coerceToExtensionClass]{coerceToExtensionClass()}} builds the ordinary S3 class
+vector from that record. For a \strong{metadata-only} extension (one that does
+not override any generic), omit the \code{coerceToExtensionClass()} call but keep
+the \code{recordExtension()} call so the dependency remains reproducible.
 }
 }
 \seealso{

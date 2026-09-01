@@ -33,8 +33,11 @@ test_that("getBiomass includes Plankton entry for MizerParams", {
 test_that("project() returns a mizerExtensionTemplateSim", {
   params <- newExtensionTemplateParams(NS_species_params)
   sim <- project(params, t_max = 1, t_save = 1)
-  expect_s4_class(sim, "mizerExtensionTemplateSim")
-  expect_true(methods::is(sim, "MizerSim"))
+  expect_s3_class(sim, "mizerExtensionTemplateSim")
+  expect_true(inherits(sim, "MizerSim"))
+  expect_identical(class(sim),
+                   c("mizerExtensionTemplateSim", "MizerSim"))
+  expect_false(isS4(sim))
 })
 
 test_that("getBiomass includes Plankton column for MizerSim", {
@@ -43,6 +46,14 @@ test_that("getBiomass includes Plankton column for MizerSim", {
   b      <- getBiomass(sim)
   expect_true("Plankton" %in% dimnames(b)[[2]])
   expect_true(all(b[, "Plankton"] > 0))
+})
+
+test_that("plotBiomass displays Plankton without a missing-legend warning", {
+  params <- newExtensionTemplateParams(NS_species_params)
+  sim    <- project(params, t_max = 2, t_save = 1)
+
+  expect_no_warning(plot_data <- plotBiomass(sim, return_data = TRUE))
+  expect_true("Plankton" %in% plot_data$Legend)
 })
 
 test_that("planktonDynamics preserves non-negativity after projection", {

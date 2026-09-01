@@ -39,7 +39,7 @@ one another.
 \code{setRateFunction(params, "Encounter", "myFn")} stores a single function
 name per rate. If two extension packages both call it for the same rate,
 the second silently overwrites the first. S3 dispatch via \verb{project*}
-methods avoids this: each extension defines a method for its own marker
+methods avoids this: each extension defines a method for its own extension
 class and calls \code{NextMethod()} to pass control down the chain.
 }
 

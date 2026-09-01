@@ -55,9 +55,10 @@ encounter rate without overwriting one another.
 `setRateFunction(params, "Encounter", "myFn")` stores a single function
 name per rate. If two extension packages both call it for the same rate,
 the second silently overwrites the first. S3 dispatch via `project*`
-methods avoids this: each extension defines a method for its own marker
-class and calls [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html)
-to pass control down the chain.
+methods avoids this: each extension defines a method for its own
+extension class and calls
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) to pass control
+down the chain.
 
 ### Rules for every `project*` method
 

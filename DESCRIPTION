@@ -1,9 +1,9 @@
 Package: mizerExtensionTemplate
 Title: Template for mizer Extension Packages
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person("First", "Last", email = "author@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0000-0000-0000"))
+           comment = c(ORCID = "0000-0003-4092-8228"))
 Description: A template that demonstrates all extension mechanisms available in
     mizer. Use it as a starting point for your own mizer extension package.
     The template illustrates metadata-only and dispatching extensions, external
@@ -15,9 +15,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends:
     R (>= 4.1.0),
-    mizer (>= 3.2.1.9000)
-Imports:
-    methods
+    mizer (>= 3.3.1)
 Suggests:
     testthat (>= 3.0.0),
     ggplot2,
@@ -36,6 +34,6 @@ Collate:
     'data.R'
 Remotes:
     sizespectrum/mizer
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0
 URL: https://sizespectrum.org/mizerExtensionTemplate, https://github.com/sizespectrum/mizerExtensionTemplate
 BugReports: https://github.com/sizespectrum/mizerExtensionTemplate/issues

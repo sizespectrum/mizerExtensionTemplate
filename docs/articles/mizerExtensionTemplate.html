@@ -12,9 +12,9 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Using and adapting the mizer extension template">
 </head>
@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizerExtensionTemplate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,7 @@
       <ul class="navbar-nav me-auto">
 <li class="active nav-item"><a class="nav-link" href="../articles/mizerExtensionTemplate.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -83,10 +84,10 @@ files alongside this vignette.</p>
 <p>For the full conceptual background see:</p>
 <ul>
 <li>
-<code>vignette("guide-extend-mizer", package = "mizer")</code> — all
+<code><a href="https://sizespectrum.org/mizer/articles/guide-extend-mizer.html" class="external-link">vignette("guide-extend-mizer", package = "mizer")</a></code> — all
 five extension mechanisms with worked examples.</li>
 <li>
-<code>vignette("guide-create-extension-package", package = "mizer")</code>
+<code><a href="https://sizespectrum.org/mizer/articles/guide-create-extension-package.html" class="external-link">vignette("guide-create-extension-package", package = "mizer")</a></code>
 — turning a script into a composable, shareable package.</li>
 </ul>
 </div>
@@ -154,7 +155,7 @@ mizer model:</p>
 <td>
 <code>example_params</code> ready to use</td>
 <td>
-<code>data/</code>, <code>R/data.R</code>, <code>.onLoad</code>
+<code>data/</code>, <code>R/data.R</code>
 </td>
 </tr>
 </tbody>
@@ -166,15 +167,13 @@ mizer model:</p>
 <p>The package ships a ready-made <code>example_params</code> object — a
 three-species (Sprat, Herring, Cod) model built with
 <code><a href="../reference/newExtensionTemplateParams.html">newExtensionTemplateParams()</a></code>. It is stored in
-<code>data/example_params.rda</code> and lazy-loaded by R, but the
-<code>.onLoad</code> hook replaces the plain binding with an active
-binding so that every access returns an object with the correct S4
-extension class:</p>
+<code>data/example_params.rda</code> and lazy-loaded by R. Standard R
+serialisation preserves its complete S3 class vector and extension
+metadata, so no <code>.onLoad</code> hook or active binding is
+needed:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">example_params</span><span class="op">)</span>   <span class="co"># mizerExtensionTemplate, not plain MizerParams</span></span>
-<span><span class="co">#&gt; [1] "mizerExtensionTemplate"</span></span>
-<span><span class="co">#&gt; attr(,"package")</span></span>
-<span><span class="co">#&gt; [1] "mizerExtensionTemplate"</span></span>
+<span><span class="co">#&gt; [1] "mizerExtensionTemplate" "MizerParams"</span></span>
 <span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">example_params</span><span class="op">)</span>  <span class="co"># Plankton entry is present</span></span>
 <span><span class="co">#&gt;        Sprat      Herring          Cod     Plankton </span></span>
 <span><span class="co">#&gt; 1.630305e+08 9.125316e+07 1.494402e+08 2.673020e+12</span></span></code></pre></div>
@@ -191,7 +190,16 @@ extension class:</p>
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newExtensionTemplateParams.html">newExtensionTemplateParams</a></span><span class="op">(</span><span class="va">NS_species_params</span><span class="op">)</span></span>
 <span><span class="va">sim</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://sizespectrum.org/mizer/reference/project.html" class="external-link">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://sizespectrum.org/mizer/reference/plotBiomass.html" class="external-link">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>   <span class="co"># Plankton column appears automatically</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; Warning in plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label, :</span></span>
+<pre><code><span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Because you have n != p, the default value for `h` is not very good.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Because the age at maturity is not known, I need to fall back to using</span></span>
+<span><span class="co">#&gt; von Bertalanffy parameters, where available.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Setting the plankton capacity to half the resource capacity.</span></span>
+<span><span class="co">#&gt; Warning in plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label, :</span></span>
 <span><span class="co">#&gt; missing legend in params@linecolour, some groups won't be displayed</span></span>
 <span><span class="co">#&gt; Warning: Removed 11 rows containing missing values or values outside the scale range</span></span>
 <span><span class="co">#&gt; (`geom_line()`).</span></span></code></pre>
@@ -205,6 +213,15 @@ and troughs at <code>t = 0.75</code>. With the default amplitude of 0.2
 the encounter rate varies by ±20 % around its annual mean.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newExtensionTemplateParams.html">newExtensionTemplateParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, season_amplitude <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Because you have n != p, the default value for `h` is not very good.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Because the age at maturity is not known, I need to fall back to using</span></span>
+<span><span class="co">#&gt; von Bertalanffy parameters, where available.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Setting the plankton capacity to half the resource capacity.</span></span>
 <span><span class="va">enc_t0</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://sizespectrum.org/mizer/reference/getEncounter.html" class="external-link">getEncounter</a></span><span class="op">(</span><span class="va">params_s</span>, t <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>    <span class="co"># multiplier = 1.0</span></span>
 <span><span class="va">enc_t025</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://sizespectrum.org/mizer/reference/getEncounter.html" class="external-link">getEncounter</a></span><span class="op">(</span><span class="va">params_s</span>, t <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span> <span class="co"># multiplier = 1.4</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">enc_t025</span> <span class="op">/</span> <span class="va">enc_t0</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -281,7 +298,7 @@ easy to fall foul of.</p>
 </h2>
 <p>When your extension makes a choice on the user’s behalf, report it
 through mizer’s own mechanism rather than with <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> or
-<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code>. A plain <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> ignores
+<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code>, because a plain <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> ignores
 <code>info_level</code>, is not collected with the other reports, and is
 swallowed on the <code>species_params&lt;-()</code> path.</p>
 <p>The constructor takes an <code>info_level</code> argument, forwards
@@ -293,16 +310,18 @@ template defaults to <code>info_level = 0</code> to keep its examples
 quiet, so ask for the reports:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_loud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newExtensionTemplateParams.html">newExtensionTemplateParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, info_level <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; No h provided for some species, so using age at maturity to calculate it.</span></span>
-<span><span class="co">#&gt; Because you have n != p, the default value for `h` is not very good.</span></span>
-<span><span class="co">#&gt; Because the age at maturity is not known, I need to fall back to using</span></span>
-<span><span class="co">#&gt; von Bertalanffy parameters, where available, and this is not reliable.</span></span>
-<span><span class="co">#&gt; Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.</span></span>
-<span><span class="co">#&gt; Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span></span>
-<span><span class="co">#&gt; Setting the plankton capacity to half the resource capacity.</span></span></code></pre></div>
-<p>The last line is the template’s own. <code>level</code> decides how
-much it takes to silence a report: ours is level 3, chatter that only
-the default shows, so <code>info_level = 1</code> keeps mizer’s
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Because you have n != p, the default value for `h` is not very good.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Because the age at maturity is not known, I need to fall back to using</span></span>
+<span><span class="co">#&gt; von Bertalanffy parameters, where available.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Setting the plankton capacity to half the resource capacity.</span></span></code></pre></div>
+<p>The last line is the template’s own. <code>info_level</code> decides
+how much it takes to silence a report: ours is level 3, chatter that
+only the default shows, so <code>info_level = 1</code> keeps mizer’s
 important reports and drops ours.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_terse</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newExtensionTemplateParams.html">newExtensionTemplateParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, info_level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
@@ -330,8 +349,7 @@ files, including <code>DESCRIPTION</code>, the R files,
 <em>Metadata-only</em> (like <code>mizerStarvation</code>): delete
 <code>mizerExtensionTemplate-class.R</code> and remove the
 <code><a href="https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html" class="external-link">coerceToExtensionClass()</a></code> call at the end of the
-constructor. Keep
-<code>params@extensions &lt;- getRegisteredExtensions()</code>.</li>
+constructor. Keep the <code><a href="https://sizespectrum.org/mizer/reference/recordExtension.html" class="external-link">recordExtension()</a></code> call.</li>
 <li>
 <em>Dispatching</em> (like <code>mizerShelf</code>): keep everything
 and define S3 methods for the generics you need to override.</li>
@@ -353,20 +371,18 @@ publishing.</p></li>
 <h2 id="checklist-for-dispatching-extension-authors">Checklist for dispatching extension authors<a class="anchor" aria-label="anchor" href="#checklist-for-dispatching-extension-authors"></a>
 </h2>
 <ul class="task-list">
-<li><label><input type="checkbox"><strong>No</strong> static
-<code>setClass()</code> for the marker classes: mizer creates
-<code>&lt;myExt&gt;</code> and <code>&lt;myExt&gt;Sim</code> dynamically
-from the S3 methods you register, so that your extension can be chained
-with others in either load order.</label></li>
-<li><label><input type="checkbox"><code>mizer::registerExtension(pkgname, requirement = ...)</code>
-in <code>.onLoad</code>.</label></li>
+<li><label><input type="checkbox"><strong>No</strong>
+<code>setClass()</code> or class declaration: the extension names are
+entries in ordinary S3 class vectors managed by
+<code><a href="https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html" class="external-link">coerceToExtensionClass()</a></code>.</label></li>
 <li><label><input type="checkbox">Constructor ends with
-<code>params@extensions &lt;- getRegisteredExtensions()</code> and
+<code><a href="https://sizespectrum.org/mizer/reference/recordExtension.html" class="external-link">recordExtension()</a></code> (including the package version and
+installation requirement) and
 <code>coerceToExtensionClass(params)</code>.</label></li>
-<li><label><input type="checkbox">For every <code>MizerParams</code>
-or <code>MizerSim</code> object bundled in <code>data/</code>, add a
-<code>makeActiveBinding</code> call in <code>.onLoad</code> (see
-<code>mizerExtensionTemplate-package.R</code>).</label></li>
+<li><label><input type="checkbox">Every bundled
+<code>MizerParams</code> or <code>MizerSim</code> object is created
+through the extension’s setup function before it is saved in
+<code>data/</code>.</label></li>
 <li><label><input type="checkbox">Every S3 method is registered via
 <code>@method</code> + <code>@export</code>.</label></li>
 <li><label><input type="checkbox">Every S3 method calls
@@ -375,8 +391,8 @@ or <code>MizerSim</code> object bundled in <code>data/</code>, add a
 <code>project*</code> methods, not
 <code><a href="https://sizespectrum.org/mizer/reference/setRateFunction.html" class="external-link">setRateFunction()</a></code>.</label></li>
 <li><label><input type="checkbox">Extension-specific state lives in
-<code>other_params(params)</code> or component params — not in new S4
-slots.</label></li>
+<code>other_params(params)</code> or component params — not in new
+top-level list elements.</label></li>
 <li><label><input type="checkbox">Every array returned to the user is
 wrapped in a mizer array class with an explicit <code>type</code>
 (<code>"value"</code>, <code>"density"</code> or
@@ -400,7 +416,7 @@ it.</label></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

@@ -5,9 +5,8 @@
 ## The result is saved to data/example_params.rda and is then lazy-loaded
 ## by R whenever the package is attached.
 ##
-## Note: the active binding in .onLoad (mizerExtensionTemplate-package.R)
-## means that users always receive a properly classed object regardless of
-## which other mizer extension packages they have loaded.
+## Standard R serialisation preserves the object's complete S3 class vector and
+## its extension metadata. No .onLoad hook or active binding is required.
 
 library(mizer)
 library(mizerExtensionTemplate)

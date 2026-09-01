@@ -2,8 +2,6 @@
 
 ## All functions
 
-- [`.onLoad()`](https://sizespectrum.org/mizerExtensionTemplate/reference/dot-onLoad.md)
-  : mizerExtensionTemplate
 - [`example_params`](https://sizespectrum.org/mizerExtensionTemplate/reference/example_params.md)
   : Example MizerParams object for the extension template
 - [`getBiomass(`*`<mizerExtensionTemplate>`*`)`](https://sizespectrum.org/mizerExtensionTemplate/reference/getBiomass.md)

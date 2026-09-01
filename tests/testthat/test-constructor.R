@@ -1,12 +1,30 @@
-test_that("newExtensionTemplateParams() returns the correct S4 class", {
+test_that("newExtensionTemplateParams() returns the correct S3 class", {
     params <- newExtensionTemplateParams(NS_species_params)
-    expect_s4_class(params, "mizerExtensionTemplate")
-    expect_true(methods::is(params, "MizerParams"))
+    expect_s3_class(params, "mizerExtensionTemplate")
+    expect_true(inherits(params, "MizerParams"))
+    expect_identical(class(params),
+                     c("mizerExtensionTemplate", "MizerParams"))
+    expect_false(isS4(params))
 })
 
-test_that("extension is recorded in params@extensions", {
+test_that("extension metadata records the requirement and version", {
     params <- newExtensionTemplateParams(NS_species_params)
-    expect_true("mizerExtensionTemplate" %in% names(params@extensions))
+    extensions <- getMetadata(params)$extensions
+    expect_named(extensions, "mizerExtensionTemplate")
+    expect_identical(
+        unname(extensions$mizerExtensionTemplate[["requirement"]]),
+        "sizespectrum/mizerExtensionTemplate"
+    )
+    expect_identical(
+        unname(extensions$mizerExtensionTemplate[["version"]]),
+        as.character(utils::packageVersion("mizerExtensionTemplate"))
+    )
+})
+
+test_that("bundled params retain their S3 extension class", {
+    expect_identical(class(example_params),
+                     c("mizerExtensionTemplate", "MizerParams"))
+    expect_false(isS4(example_params))
 })
 
 test_that("plankton component is present and non-negative", {
@@ -43,7 +61,9 @@ test_that("season_amplitude is stored in other_params", {
 })
 
 test_that("the constructor reports its own choices through info_level", {
-    # The template defaults to info_level = 0 to keep its examples quiet.
+    # The default follows the global mizer_info_level option.
+    old_options <- options(mizer_info_level = 0)
+    on.exit(options(old_options), add = TRUE)
     expect_silent(newExtensionTemplateParams(NS_species_params))
 
     # Reports are collected and given together when the call finishes, so match
